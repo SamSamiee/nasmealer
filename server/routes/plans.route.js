@@ -127,5 +127,31 @@ router.get("/:planId", authenticate, async (req, res) => {
 // EDIT A PLAN
 
 // DELETE A PLAN
+router.delete("/", authenticate, async (req, res) => {
+  const planId = req.body.planId;
+  if (!planId) {
+    return res
+      .status(400)
+      .json({ status: "failed", message: "invalid planId" });
+  }
+  try {
+    const result = await pool.query(
+      "DELETE FROM plans WHERE id = $1 RETURNING id",
+      [planId]
+    );
+
+    if (result.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ status: "failed", message: "plan not found" });
+    }
+
+    return res
+      .status(200)
+      .json({ status: "success", planId: result.rows[0].id });
+  } catch (err) {
+    return res.status(500).json({ status: "failed", error: err.message });
+  }
+});
 
 module.exports = router;
