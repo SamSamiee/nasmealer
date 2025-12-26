@@ -1,10 +1,10 @@
 const express = require("express");
-const router = express.router();
+const router = express.Router();
 const pool = require("../db.js");
 const { authenticate } = require("../middlewares/auth.middleware.js");
 
 // ADD MEALS INGREDIENT TO CART
-router.post("/", authenticate, async (req, res, next) => {
+router.post("/meals", authenticate, async (req, res, next) => {
   const meals = req.body.meals;
   const userId = req.user.userId;
   if (!Array.isArray(meals)) {
@@ -87,7 +87,69 @@ router.post("/", authenticate, async (req, res, next) => {
   }
 });
 
+// product = {
+//   name: "halva",
+//   unit: "kg",
+//   quantity: 1.2,
+//   id: "234j432",
+//   type: "extra",
+//   status: "pending",
+// };
+
 // ADD PRODUCTS TO CART
+router.post("/", authenticate, async (req, res, next) => {
+  const userId = req.user.userId;
+  const product = req.body.product;
+  if (!(product && typeof product === "object" && !Array.isArray(product))) {
+    return res.status(400).json({
+      status: "failed",
+      message: "product must be provided as an object.",
+    });
+  }
+
+  const { name, quantity, unit } = product;
+  if (!name) {
+    return res
+      .status(400)
+      .json({ status: "failed", message: "product name is required." });
+  }
+
+  let client;
+
+  try {
+    client = await pool.connect();
+    await client.query("BEGIN");
+    const {rows: [{id: cartId}]} = await client.query(
+      "INSERT INTO carts (created_by) VALUES ($1) ON CONFLICT (created_by) DO UPDATE SET created_by = EXCLUDED.created_by RETURNING id",
+      [userId]
+    );
+
+    const {
+      rows: [{ id: productId }],
+    } = await client.query(
+      "INSERT INTO products (name, created_by) VALUES ($1, $2) ON CONFLICT ON CONSTRAINT unique_name_per_user DO UPDATE SET name = EXCLUDED.name RETURNING id",
+      [name, userId]
+    );
+
+    await client.query(
+      "INSERT INTO cart_items (cart_id, product_id, ingredient_id, quantity, unit) VALUES($1, $2, NULL, $3, $4)",
+      [cartId, productId, quantity, unit]
+    );
+    await client.query("COMMIT");
+    res
+      .status(201)
+      .json({ status: "success", message: "product inserted in to cart." });
+  } catch (err) {
+    if (client) {
+      await client.query("ROLLBACK");
+    }
+    next(err);
+  } finally {
+    if (client) {
+      client.release();
+    }
+  }
+});
 
 // CHANGE STATUS OF CART ITEMS
 
