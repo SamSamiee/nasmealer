@@ -30,6 +30,7 @@ app.use("/ingredients", ingredientRouter);
 app.use("/plans", planRouter);
 app.use("/cart", cartRouter);
 
-//error handling
+//ERROR HANDLER
 app.use(errorHandler);
+
 app.listen(port, () => console.log(`server is running on port ${port}`));

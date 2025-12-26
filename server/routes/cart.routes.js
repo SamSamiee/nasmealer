@@ -3,14 +3,8 @@ const router = express.router();
 const pool = require("../db.js");
 const { authenticate } = require("../middlewares/auth.middleware.js");
 
-// CART = [
-//     {id: l2k3j4, name: khiar, quantity: 23, unit: kg, price: 23, status: pending, box: meals},
-//     {id: l2k3j4, name: khiar, quantity: 23, unit: kg, price: 23, status: pending, box: meals},
-//     {id: l2k3j4, name: khiar, quantity: 23, unit: kg, price: 23, status: pending, box: meals},
-// ]
-
 // ADD MEALS INGREDIENT TO CART
-router.post("/", authenticate, async (req, res) => {
+router.post("/", authenticate, async (req, res, next) => {
   const meals = req.body.meals;
   const userId = req.user.userId;
   if (!Array.isArray(meals)) {
@@ -19,8 +13,9 @@ router.post("/", authenticate, async (req, res) => {
       message: "meals should be provided as a list.",
     });
   }
+  let client;
   try {
-    const client = await pool.connect(); // register a client
+    client = await pool.connect(); // register a client
     await client.query("BEGIN"); // begin transaction
     // query every ingredient inside the list
     const ingredientResults = await Promise.all(
@@ -72,23 +67,23 @@ router.post("/", authenticate, async (req, res) => {
     );
 
     // add the ingredients to the cart
-    for (const { id, quantity, unit, type, status } of ingredients) {
+    for (const { id, quantity, unit } of ingredients) {
       await client.query(
-        "NSERT INTO cart_items (cart_id, product_id, ingredient_id, quantity, unit, type, status) VALUES ($1, NULL, $2, $3, $4, $5, $6)",
+        "INSERT INTO cart_items (cart_id, product_id, ingredient_id, quantity, unit, type, status) VALUES ($1, NULL, $2, $3, $4, $5, $6)",
         [cartId, id, quantity, unit, "meal", "pending"]
       );
     }
     await client.query("COMMIT"); // commit changes
     res.status(201).json({ status: "success", ingredients });
   } catch (err) {
-    res.status(500).json({
-      status: "failed",
-      message: "internal server error",
-      error: err.message,
-    });
-    await client.query("ROLLBACK"); //undo changes
+    if (client) {
+      await client.query("ROLLBACK"); //undo changes
+    }
+    next(err);
   } finally {
-    client.release(); // release client
+    if (client) {
+      client.release(); // release client
+    }
   }
 });
 
