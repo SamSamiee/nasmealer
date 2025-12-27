@@ -4,7 +4,7 @@ const pool = require("../db.js");
 const { authenticate } = require("../middlewares/auth.middleware.js");
 
 // ADD AN INGREDIENT
-router.post("/", authenticate, async (req, res) => {
+router.post("/", authenticate, async (req, res, next) => {
   const name = req.body.name;
   if (!name) {
     return res
@@ -19,11 +19,7 @@ router.post("/", authenticate, async (req, res) => {
     const id = ingredient.rows[0].id;
     return res.status(201).json({ status: "success", id, name });
   } catch (err) {
-    return res.status(500).json({
-      status: "failed",
-      message: "internal server error",
-      error: err.message,
-    });
+    next(err);
   }
 });
 
@@ -43,7 +39,7 @@ router.get("/", authenticate, async (req, res, next) => {
 });
 
 // GET AN INGREDIENT
-router.get("/:ingId", authenticate, async (req, res) => {
+router.get("/:ingId", authenticate, async (req, res, next) => {
   const { ingId } = req.params;
   try {
     const ingredient = await pool.query(
@@ -61,11 +57,7 @@ router.get("/:ingId", authenticate, async (req, res) => {
       .status(200)
       .json({ status: "success", ingredient: ingredient.rows[0] });
   } catch (err) {
-    return res.status(500).json({
-      status: "failed",
-      message: "internal server error",
-      error: err.message,
-    });
+    next(err);
   }
 });
 
