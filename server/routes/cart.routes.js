@@ -8,7 +8,27 @@ router.get("/", authenticate, async (req, res, next) => {
   const userId = req.user.userId;
   try {
     const { rows } = await pool.query(
-      "SELECT ci.id, ci.product_id, ci.ingredient_id, ci.quantity, ci.unit, ci.created_at, ci.type, ci.status FROM cart_items ci JOIN carts c ON ci.cart_id = c.id WHERE c.created_by = $1",
+      `SELECT
+    ci.id,
+    CASE
+        WHEN ci.ingredient_id IS NOT NULL THEN ci.ingredient_id
+        ELSE ci.product_id
+    END AS item_id,
+    CASE
+        WHEN ci.ingredient_id IS NOT NULL THEN ingredients.name
+        ELSE products.name
+    END AS item_name,
+    ci.quantity,
+    ci.unit,
+    ci.created_at,
+    ci.type,
+    ci.status
+FROM cart_items ci
+JOIN carts c ON ci.cart_id = c.id
+LEFT JOIN products ON products.id = ci.product_id
+LEFT JOIN ingredients ON ingredients.id = ci.ingredient_id
+WHERE c.created_by = $1;
+`,
       [userId]
     );
 
@@ -179,10 +199,15 @@ router.patch("/", authenticate, async (req, res, next) => {
 
   try {
     const query = await pool.query(
-      "UPDATE cart_items ci SET ci.status = $1 FROM carts WHERE id = $2 AND ci.cart_id = carts.id AND carts.created_by = $3",
+      `UPDATE cart_items ci
+SET status = $1
+FROM carts c
+WHERE ci.id = $2
+  AND ci.cart_id = c.id
+  AND c.created_by = $3;`,
       [status, id, userId]
     );
-    if (query.rows.length === 0) {
+    if (query.rowCount === 0) {
       return res
         .status(400)
         .json({ status: "failed", message: "not allowed to update this item" });
