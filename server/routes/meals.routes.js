@@ -4,40 +4,82 @@ const pool = require("../db.js");
 const { authenticate } = require("../middlewares/auth.middleware.js");
 
 // GET ALL USER MEALS
-router.get("/", authenticate, async (req, res) => {
+router.get("/", authenticate, async (req, res, next) => {
   try {
-    const meals = await pool.query(
-      "SELECT * FROM meals WHERE created_by = $1",
+    const result = await pool.query(
+      "SELECT mi.quantity AS quantity, mi.unit AS unit, m.id AS meal_id, m.name AS meal_name, mi.ingredient_id AS ingredient_id, i.name AS ingredient_name FROM meals m JOIN meal_ingredients mi ON m.id = mi.meal_id JOIN ingredients i ON mi.ingredient_id = i.id WHERE m.created_by = $1",
       [req.user.userId]
     );
-    return res.json({ meals: meals.rows });
+
+    const meals = [];
+
+    result.rows.forEach(
+      ({
+        quantity,
+        unit,
+        meal_id,
+        meal_name,
+        ingredient_id,
+        ingredient_name,
+      }) => {
+        let meal = meals.find((i) => i.id === meal_id);
+        if (!meal) {
+          meal = { name: meal_name, id: meal_id, ingredients: [] };
+          meals.push(meal);
+        }
+
+        meal.ingredients.push({
+          name: ingredient_name,
+          id: ingredient_id,
+          unit,
+          quantity,
+        });
+      }
+    );
+
+    return res.json({ meals });
   } catch (err) {
-    return res.json({
-      message: "error in GET ALL USER MEALS",
-      error: err.message,
-    });
+    next(err);
   }
 });
 
 // GET A USER MEAL
-router.get("/:mealID", authenticate, async (req, res) => {
+router.get("/:mealID", authenticate, async (req, res, next) => {
   const { mealID } = req.params;
   try {
-    const meal = await pool.query(
-      "SELECT * FROM meals WHERE id = $1 AND created_by = $2",
+    const result = await pool.query(
+      "SELECT mi.quantity AS quantity, mi.unit AS unit, m.id AS meal_id, m.name AS meal_name, mi.ingredient_id AS ingredient_id, i.name AS ingredient_name FROM meals m JOIN meal_ingredients mi ON m.id = mi.meal_id JOIN ingredients i ON mi.ingredient_id = i.id WHERE m.id = $1 AND m.created_by = $2",
       [mealID, req.user.userId]
     );
-    if (meal.rows.length === 0) {
+
+    if (result.rows.length === 0) {
       return res.status(404).json({ error: "meal not found" });
     }
-    return res.json({ meal: meal.rows[0] });
+
+    const ingredients = [];
+    const meal = {
+      name: result.rows[0].meal_name,
+      id: result.rows[0].meal_id,
+      ingredients,
+    };
+
+    result.rows.forEach((row) => {
+      ingredients.push({
+        name: row.ingredient_name,
+        id: row.ingredient_id,
+        quantity: row.quantity,
+        unit: row.unit,
+      });
+    });
+
+    return res.json({ meal });
   } catch (err) {
-    return res.status(500).json({ message: err.message });
+    next(err);
   }
 });
 
 // ADD A USER MEAL
-router.post("/", authenticate, async (req, res) => {
+router.post("/", authenticate, async (req, res, next) => {
   const { name, ingredients } = req.body;
   const created_by = req.user.userId;
 
@@ -45,24 +87,28 @@ router.post("/", authenticate, async (req, res) => {
     return res.status(400).json({ error: "meal name is required" });
   }
 
+  let client;
   try {
-    const mealResult = await pool.query(
+    client = await pool.connect();
+    await client.query("BEGIN");
+
+    const mealResult = await client.query(
       "INSERT INTO meals (name, created_by) VALUES ($1, $2) RETURNING id",
       [name, created_by]
     );
+
     const mealId = mealResult.rows[0].id;
 
-    let queries = [];
-    if (Array.isArray(ingredients) && ingredients.length) {
-      queries = ingredients.map((ing) => {
-        return pool.query(
+    if (Array.isArray(ingredients) && ingredients.length > 0) {
+      for (const ing of ingredients) {
+        await client.query(
           "INSERT INTO meal_ingredients (meal_id, ingredient_id, quantity, unit) VALUES ($1, $2, $3, $4)",
           [mealId, ing.id, ing.quantity, ing.unit]
         );
-      });
+      }
     }
 
-    await Promise.all(queries);
+    await client.query("COMMIT");
 
     return res.status(201).json({
       status: "success",
@@ -72,12 +118,19 @@ router.post("/", authenticate, async (req, res) => {
       ingredients: ingredients || [],
     });
   } catch (err) {
-    return res.status(500).json({ message: err.message });
+    if (client) {
+      await client.query("ROLLBACK");
+    }
+    next(err);
+  } finally {
+    if (client) {
+      client.release();
+    }
   }
 });
 
 // DELETE A USER MEAL
-router.delete("/:mealID", authenticate, async (req, res) => {
+router.delete("/:mealID", authenticate, async (req, res, next) => {
   const mealID = req.params.mealID;
   if (!mealID) return res.status(400).json({ error: "mealID is required" });
   try {
@@ -87,7 +140,7 @@ router.delete("/:mealID", authenticate, async (req, res) => {
     );
     return res.status(200).json({ message: "meal deleted" });
   } catch (err) {
-    return res.status(500).json({ message: err.message });
+    next(err);
   }
 });
 
