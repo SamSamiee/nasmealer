@@ -3,6 +3,21 @@ const router = express.Router();
 const pool = require("../db.js");
 const { authenticate } = require("../middlewares/auth.middleware.js");
 
+// GET CART ITEMS
+router.get("/", authenticate, async (req, res, next) => {
+  const userId = req.user.userId;
+  try {
+    const { rows } = await pool.query(
+      "SELECT ci.id, ci.product_id, ci.ingredient_id, ci.quantity, ci.unit, ci.created_at, ci.type, ci.status FROM cart_items ci JOIN carts c ON ci.cart_id = c.id WHERE c.created_by = $1",
+      [userId]
+    );
+
+    return res.status(200).json({ status: "success", data: rows });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ADD MEALS INGREDIENT TO CART
 router.post("/meals", authenticate, async (req, res, next) => {
   const meals = req.body.meals;
@@ -87,15 +102,6 @@ router.post("/meals", authenticate, async (req, res, next) => {
   }
 });
 
-// product = {
-//   name: "halva",
-//   unit: "kg",
-//   quantity: 1.2,
-//   id: "234j432",
-//   type: "extra",
-//   status: "pending",
-// };
-
 // ADD PRODUCTS TO CART
 router.post("/", authenticate, async (req, res, next) => {
   const userId = req.user.userId;
@@ -119,7 +125,9 @@ router.post("/", authenticate, async (req, res, next) => {
   try {
     client = await pool.connect();
     await client.query("BEGIN");
-    const {rows: [{id: cartId}]} = await client.query(
+    const {
+      rows: [{ id: cartId }],
+    } = await client.query(
       "INSERT INTO carts (created_by) VALUES ($1) ON CONFLICT (created_by) DO UPDATE SET created_by = EXCLUDED.created_by RETURNING id",
       [userId]
     );
@@ -152,7 +160,55 @@ router.post("/", authenticate, async (req, res, next) => {
 });
 
 // CHANGE STATUS OF CART ITEMS
+router.patch("/", authenticate, async (req, res, next) => {
+  const userId = req.user.userId;
+  const id = req.body.id;
+  const status = req.body.status;
+
+  if (status !== "pending" && status !== "done") {
+    return res
+      .status(400)
+      .json({ status: "failed", message: "invalid status" });
+  }
+
+  if (!id) {
+    return res
+      .status(400)
+      .json({ status: "failed", message: "invalid item id" });
+  }
+
+  try {
+    const query = await pool.query(
+      "UPDATE cart_items ci SET ci.status = $1 FROM carts WHERE id = $2 AND ci.cart_id = carts.id AND carts.created_by = $3",
+      [status, id, userId]
+    );
+    if (query.rows.length === 0) {
+      return res
+        .status(400)
+        .json({ status: "failed", message: "not allowed to update this item" });
+    }
+    return res
+      .status(200)
+      .json({ status: "success", message: "cart item updated successfully" });
+  } catch (err) {
+    next(err);
+  }
+});
 
 // DELETE ITEMS FROM CART
+router.delete("/", authenticate, async (req, res, next) => {
+  const userId = req.user.userId;
+  try {
+    await pool.query(
+      "DELETE FROM cart_items ci USING carts c WHERE ci.cart_id = c.id AND c.created_by = $1",
+      [userId]
+    );
+    return res
+      .status(200)
+      .json({ status: "success", message: "cart items deleted successfully" });
+  } catch (err) {
+    next(err);
+  }
+});
 
 module.exports = router;

@@ -40,15 +40,15 @@ router.post("/signup", async (req, res, next) => {
 });
 
 // LOGIN ROUTE
-router.post("/login", async (req, res) => {
+router.post("/login", async (req, res, next) => {
   const { username, password } = req.body;
+  // check for requried fields
+  if (!username || !password) {
+    return res
+      .status(400)
+      .json({ error: " username and password are required." });
+  }
   try {
-    // check for requried fields
-    if (!username || !password) {
-      return res
-        .status(400)
-        .json({ error: " username and password are required." });
-    }
     // check if the user exists
     const user = await pool.query(
       "SELECT username, password, id FROM users WHERE username = $1",
@@ -97,7 +97,7 @@ router.post("/logout", authenticate, async (req, res) => {
       .status(200)
       .json({ status: "success", message: "Logged out successfully" });
   } catch (err) {
-    return res.json({ message: err.message });
+    next();
   }
 });
 
