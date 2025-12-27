@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use((req, res, next) => {
   if (req) {
-    console.log("request received");
+    console.log("server hit with", req.method);
     next();
   }
 });
