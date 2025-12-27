@@ -12,7 +12,8 @@ const authenticate = async function (req, res, next) {
          user_sessions.user_id,
          users.id AS "userId",
          users.email AS "userEmail",
-         users.username AS "username"
+         users.username AS "username",
+         users.role AS "userRole"
        FROM user_sessions
        INNER JOIN users ON user_sessions.user_id = users.id
        WHERE user_sessions.id = $1`,
@@ -31,4 +32,11 @@ const authenticate = async function (req, res, next) {
   }
 };
 
-module.exports = { authenticate };
+const isAdmin = function (req, res, next) {
+  const userRole = req.user.userRole;
+  if (userRole !== "admin") {
+    return res.status(403).json({ message: "forbidden" });
+  }
+};
+
+module.exports = { authenticate, isAdmin };
