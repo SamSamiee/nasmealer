@@ -58,6 +58,7 @@ router.post("/login", async (req, res, next) => {
     if (user.rows.length === 0) {
       return res.status(400).json({ error: "invalid username or password" });
     }
+    //password check
     const userPassword = user.rows[0].password;
     if (userPassword !== password) {
       return res.status(400).json({ error: "invalid username or password" });
