@@ -1,7 +1,7 @@
 import React from "react";
-import { SERVER_URL } from "../../config/api.js";
-import { UserContext } from "../../context/UserProvider";
 import { Link } from "react-router-dom";
+import { useHamMenu } from "../../hooks/useHamMenu.js";
+import styles from "./HamMenu.module.css";
 
 const links = [
   { name: "home", to: "/" },
@@ -11,40 +11,32 @@ const links = [
 ];
 
 function HamMenu({ children }) {
-  const [visible, setVisible] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
-  const { logUserOut } = React.useContext(UserContext);
-
-  async function handleLogOut() {
-    try {
-      setLoading(true);
-      const result = await fetch(`${SERVER_URL}/user/logout`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      if (result.ok) {
-        setLoading(false);
-        logUserOut();
-      }
-    } catch {
-      setLoading(false);
-    }
-  }
+  const { visible, setVisible, containerRef, buttonRef, handleLogOut } =
+    useHamMenu();
 
   return (
     <div>
-      <button onClick={() => setVisible((current) => !current)}>
+      <button
+        ref={buttonRef}
+        onClick={() => setVisible((current) => !current)}
+      >
         {children}
       </button>
       {visible && (
-        <>
+        <div
+          ref={containerRef}
+          className={styles.container}
+        >
           <ul>
             {links.map((item) => (
               <li key={item.name}>
-                <Link to={item.to}>{item.name}</Link>
+                <Link
+                  onClick={() => setVisible(false)}
+                  to={item.to}
+                >
+                  {item.name}
+                </Link>
               </li>
             ))}
           </ul>
@@ -54,7 +46,7 @@ function HamMenu({ children }) {
           >
             Log Out
           </button>
-        </>
+        </div>
       )}
     </div>
   );
