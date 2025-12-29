@@ -9,26 +9,26 @@ router.get("/", authenticate, async (req, res, next) => {
   try {
     const { rows } = await pool.query(
       `SELECT
-    ci.id,
-    CASE
-        WHEN ci.ingredient_id IS NOT NULL THEN ci.ingredient_id
-        ELSE ci.product_id
-    END AS item_id,
-    CASE
-        WHEN ci.ingredient_id IS NOT NULL THEN ingredients.name
-        ELSE products.name
-    END AS item_name,
-    ci.quantity,
-    ci.unit,
-    ci.created_at,
-    ci.type,
-    ci.status
-FROM cart_items ci
-JOIN carts c ON ci.cart_id = c.id
-LEFT JOIN products ON products.id = ci.product_id
-LEFT JOIN ingredients ON ingredients.id = ci.ingredient_id
-WHERE c.created_by = $1;
-`,
+        ci.id,
+        CASE
+            WHEN ci.ingredient_id IS NOT NULL THEN ci.ingredient_id
+            ELSE ci.product_id
+        END AS item_id,
+        CASE
+            WHEN ci.ingredient_id IS NOT NULL THEN ingredients.name
+            ELSE products.name
+        END AS item_name,
+        ci.quantity,
+        ci.unit,
+        ci.created_at,
+        ci.type,
+        ci.status
+      FROM cart_items ci
+      JOIN carts c ON ci.cart_id = c.id
+      LEFT JOIN products ON products.id = ci.product_id
+      LEFT JOIN ingredients ON ingredients.id = ci.ingredient_id
+      WHERE c.created_by = $1;
+    `,
       [userId]
     );
 

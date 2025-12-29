@@ -1,8 +1,9 @@
 import React from "react";
 import HamMenu from "../HamMenu";
-
+import { UserContext } from "../../context/UserProvider";
 function Navbar({}) {
-  return (
+  const { isAuthenticated } = React.useContext(UserContext);
+  return isAuthenticated && (
     <div>
       <nav>
         <div>logo</div>

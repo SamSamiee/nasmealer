@@ -3,6 +3,90 @@ const router = express.Router();
 const pool = require("../db.js");
 const { authenticate } = require("../middlewares/auth.middleware.js");
 
+// HOMEPAGE
+router.get("/", authenticate, async (req, res, next) => {
+  const userId = req.user.userId;
+  try {
+    // getting n.meals
+    const meals = await pool.query(
+      `SELECT COUNT(*) FROM meals WHERE created_by = $1`,
+      [userId]
+    );
+    const number_of_meals = meals.rows[0].count;
+
+    // getting n.ingredients
+    const ingredients = await pool.query(
+      `SELECT COUNT(*) FROM ingredients WHERE created_by=$1`,
+      [userId]
+    );
+    const number_of_ingredients = ingredients.rows[0].count;
+
+    // getting n.plans
+    const plans = await pool.query(
+      `SELECT COUNT(*) FROM plans WHERE created_by = $1`,
+      [userId]
+    );
+    const number_of_plans = plans.rows[0].count;
+
+    // getting cart_items
+    const cart_items_query = await pool.query(
+      `SELECT
+        ci.id,
+        CASE
+            WHEN ci.ingredient_id IS NOT NULL THEN ci.ingredient_id
+            ELSE ci.product_id
+        END AS item_id,
+        CASE
+            WHEN ci.ingredient_id IS NOT NULL THEN ingredients.name
+            ELSE products.name
+        END AS item_name,
+        ci.quantity,
+        ci.unit,
+        ci.created_at,
+        ci.type,
+        ci.status
+      FROM cart_items ci
+      JOIN carts c ON ci.cart_id = c.id
+      LEFT JOIN products ON products.id = ci.product_id
+      LEFT JOIN ingredients ON ingredients.id = ci.ingredient_id
+      WHERE c.created_by = $1
+      AND ci.status <> 'done'
+      ORDER BY ci.created_at DESC
+    `,
+      [userId]
+    );
+    const cart_items = cart_items_query.rows;
+
+    // getting the last plan
+    const result = await pool.query(
+      "SELECT plans.name AS plan_name, mip.plan_id AS plan_id, mip.meal_id AS meal_id, mip.type AS type, mip.day AS day, meals.name AS meal_name FROM plans JOIN meals_in_plan mip ON plans.id = mip.plan_id JOIN meals ON meals.id = mip.meal_id WHERE plans.created_by = $1 ORDER BY plans.created_at DESC LIMIT 1",
+      [userId]
+    );
+
+    let last_plan;
+    if (result.rows.length === 0) {
+       last_plan = null;
+    } else {
+      const { plan_name, plan_id } = result.rows[0];
+      const meals = [];
+      result.rows.forEach(({ meal_id, meal_name, day, type }) =>
+        meals.push({ meal_id, meal_name, day, type })
+      );
+      last_plan = { plan_name, plan_id, meals };
+    }
+
+    return res.status(200).json({
+      number_of_ingredients,
+      number_of_meals,
+      number_of_plans,
+      last_plan,
+      cart_items,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // SIGNUP ROUTE
 router.post("/signup", async (req, res, next) => {
   const { username, password, name, age, email } = req.body;
