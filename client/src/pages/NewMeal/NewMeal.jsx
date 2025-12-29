@@ -19,7 +19,7 @@ function NewMeal({ initial }) {
     list,
     setList,
     handleReset,
-  } = useNewMeal();
+  } = useNewMeal(initial);
 
   return isLoading ? (
     <p>loading</p>

@@ -1,10 +1,9 @@
 import React from "react";
 
-function MealCard({ title, price, list, fnEdit, fnRemove }) {
-
+function MealCard({ name, list, fnEdit, fnRemove }) {
   return (
     <div>
-      <h4>{title}</h4>
+      <h4>{name}</h4>
       {fnEdit && (
         <button
           type="button"
@@ -21,12 +20,12 @@ function MealCard({ title, price, list, fnEdit, fnRemove }) {
           remove
         </button>
       )}
-      <p>{price}</p>
       {list && (
         <p>
-          {list.map((item) => (
-            <span key={item}>{item}, </span>
+          {list.slice(0, 3).map((item) => (
+            <span key={item.id}>{item.name}, </span>
           ))}
+          {list.length > 3 && "..."}
         </p>
       )}
     </div>

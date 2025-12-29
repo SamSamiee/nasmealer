@@ -1,6 +1,14 @@
 import React from "react";
 import { SERVER_URL } from "../../config/api.js";
 import { UserContext } from "../../context/UserProvider";
+import { Link } from "react-router-dom";
+
+const links = [
+  { name: "home", to: "/" },
+  { name: "plans", to: "/plans" },
+  { name: "cart", to: "/cart" },
+  { name: "meals", to: "/meals" },
+];
 
 function HamMenu({ children }) {
   const [visible, setVisible] = React.useState(false);
@@ -34,18 +42,11 @@ function HamMenu({ children }) {
       {visible && (
         <>
           <ul>
-            <li>
-              <a href="/">home</a>
-            </li>
-            <li>
-              <a href="/plans">plans</a>
-            </li>
-            <li>
-              <a href="/cart">cart</a>
-            </li>
-            <li>
-              <a href="/meals">meals</a>
-            </li>
+            {links.map((item) => (
+              <li key={item.name}>
+                <Link to={item.to}>{item.name}</Link>
+              </li>
+            ))}
           </ul>
           <button
             disabled={loading}

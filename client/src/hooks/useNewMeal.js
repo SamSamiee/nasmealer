@@ -1,9 +1,12 @@
+import React from "react";
 import { useParams } from "react-router-dom";
 import { SERVER_URL } from "../config/api.js";
+import {useNavigate} from "react-router-dom";
 
-export function useNewMeal() {
+export function useNewMeal(initial) {
   const units = ["gr", "kg", "pieces", "ml", "liters"];
 
+  const navigate = useNavigate()
   const [isLoading, setIsLoading] = React.useState(false);
   const [data, setData] = React.useState(null);
 
@@ -17,10 +20,11 @@ export function useNewMeal() {
         method: "GET",
         credentials: "include",
       });
-      const json = await result.json();
       if (result.ok) {
         setData(json);
       }
+      const json = await result.json();
+
     } catch (err) {
       console.error(err);
       setData(null);
@@ -62,7 +66,6 @@ export function useNewMeal() {
   function handleReset() {
     setName("");
     setQuantity(1);
-    setPrice(0.0);
   }
 
   // handle submit
@@ -86,6 +89,9 @@ export function useNewMeal() {
       }
 
       const data = await res.json();
+      handleReset()
+      setMealName("")
+      navigate("/meals")
     } catch (err) {
       console.error(err);
     }
