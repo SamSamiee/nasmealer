@@ -1,10 +1,9 @@
 import React from "react";
 
-function Ingredient({ name, price }) {
+function Ingredient({ name }) {
   return (
     <div>
       <h3>{name}</h3>
-      <p>{price}</p>
     </div>
   );
 }

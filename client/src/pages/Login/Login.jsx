@@ -16,8 +16,6 @@ function Login() {
     } else {
       setStatus("idle");
     }
-    console.log("the status is:", status);
-    console.log("authentication is ", isAuthenticated);
   }, [isAuthenticated]);
 
   // id for the inputs

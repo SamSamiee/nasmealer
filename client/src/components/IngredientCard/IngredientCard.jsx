@@ -1,6 +1,6 @@
 import React from 'react';
 
-function IngredientCard({children, price, quantity, unit, onClick, tag}) {
+function IngredientCard({children, quantity, unit, onClick, tag}) {
   return (
     <div>
       <div>
@@ -8,9 +8,6 @@ function IngredientCard({children, price, quantity, unit, onClick, tag}) {
       </div>
       <div>
         {quantity} {unit}
-      </div>
-      <div>
-        {quantity * price}
       </div>
       <button onClick={onClick}>{tag}</button>
     </div>

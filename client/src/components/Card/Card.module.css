@@ -1,0 +1,14 @@
+.header {
+  color: red;
+  font-size: 1.3em;
+}
+
+.footer {
+  color: green;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--border-radius-l);
+}

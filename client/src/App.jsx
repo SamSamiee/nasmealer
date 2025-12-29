@@ -35,7 +35,7 @@ function App() {
               element={<ProtectedRoute><NewMeal /></ProtectedRoute>}
             />
             <Route
-              path="/newmeal/:mealId/edit"
+              path="/newmeal/:mealId"
               element={<ProtectedRoute><NewMeal /></ProtectedRoute>}
             />
             <Route

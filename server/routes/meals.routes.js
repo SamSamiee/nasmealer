@@ -101,9 +101,14 @@ router.post("/", authenticate, async (req, res, next) => {
 
     if (Array.isArray(ingredients) && ingredients.length > 0) {
       for (const ing of ingredients) {
+        const query = await client.query(
+          `INSERT INTO ingredients (name, created_by) VALUES ($1, $2) ON CONFLICT (name, created_by) DO UPDATE SET name = EXCLUDED.name RETURNING id`,
+          [ing.name, created_by]
+        );
+
         await client.query(
           "INSERT INTO meal_ingredients (meal_id, ingredient_id, quantity, unit) VALUES ($1, $2, $3, $4)",
-          [mealId, ing.id, ing.quantity, ing.unit]
+          [mealId, query.rows[0].id, ing.quantity, ing.unit]
         );
       }
     }
