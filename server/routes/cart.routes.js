@@ -27,7 +27,8 @@ router.get("/", authenticate, async (req, res, next) => {
       JOIN carts c ON ci.cart_id = c.id
       LEFT JOIN products ON products.id = ci.product_id
       LEFT JOIN ingredients ON ingredients.id = ci.ingredient_id
-      WHERE c.created_by = $1;
+      WHERE c.created_by = $1
+      ORDER BY ci.created_at DESC
     `,
       [userId]
     );
@@ -104,7 +105,7 @@ router.post("/meals", authenticate, async (req, res, next) => {
     // add the ingredients to the cart
     for (const { id, quantity, unit } of ingredients) {
       await client.query(
-        "INSERT INTO cart_items (cart_id, product_id, ingredient_id, quantity, unit, type, status) VALUES ($1, NULL, $2, $3, $4, $5, $6)",
+        "INSERT INTO cart_items (cart_id, product_id, ingredient_id, quantity, unit, type, status) VALUES ($1, NULL, $2, $3, $4, $5, $6) ON CONFLICT (cart_id, ingredient_id, unit, type) DO UPDATE SET quantity = cart_items.quantity + EXCLUDED.quantity",
         [cartId, id, quantity, unit, "meal", "pending"]
       );
     }
@@ -160,7 +161,7 @@ router.post("/", authenticate, async (req, res, next) => {
     );
 
     await client.query(
-      "INSERT INTO cart_items (cart_id, product_id, ingredient_id, quantity, unit) VALUES($1, $2, NULL, $3, $4)",
+      "INSERT INTO cart_items (cart_id, product_id, ingredient_id, quantity, unit) VALUES($1, $2, NULL, $3, $4) ON CONFLICT (cart_id, product_id, unit, type) DO UPDATE SET quantity = cart_items.quantity + EXCLUDED.quantity",
       [cartId, productId, quantity, unit]
     );
     await client.query("COMMIT");

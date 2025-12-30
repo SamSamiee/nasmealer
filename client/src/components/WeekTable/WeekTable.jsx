@@ -145,7 +145,12 @@ function WeekTable({ tableName, mainPlan, edit = true }) {
     weekMeals.forEach(({ day, meals }) => {
       meals.forEach(({ type, meal_name, meal_id }) => {
         // Only include meals with valid UUIDs (non-empty string)
-        if (meal_id && meal_id !== "" && meal_id !== null && meal_id !== undefined) {
+        if (
+          meal_id &&
+          meal_id !== "" &&
+          meal_id !== null &&
+          meal_id !== undefined
+        ) {
           MEALS.push({ id: meal_id, type, day });
         }
       });
@@ -162,7 +167,6 @@ function WeekTable({ tableName, mainPlan, edit = true }) {
       meals: MEALS,
     };
 
-
     try {
       const result = await fetch(`${SERVER_URL}/plans`, {
         method: "POST",
@@ -172,7 +176,9 @@ function WeekTable({ tableName, mainPlan, edit = true }) {
       });
 
       if (!result.ok) {
-        const errorData = await result.json().catch(() => ({ message: "Unknown error" }));
+        const errorData = await result
+          .json()
+          .catch(() => ({ message: "Unknown error" }));
         throw new Error(errorData.message || "failed making plan");
       }
 
@@ -182,6 +188,43 @@ function WeekTable({ tableName, mainPlan, edit = true }) {
     } catch (err) {
       console.error(err);
       window.alert(err.message || "Failed to save plan. Please try again.");
+    }
+  }
+
+  async function handleMealToCart() {
+    try {
+      // list of ids to be sent
+      const idList = [];
+
+      // add ids in the plan to the list
+      weekMeals.forEach(({ date, meals }) => {
+        meals.forEach(({ meal_id }) => {
+          if (meal_id) {
+            idList.push(meal_id);
+          }
+        });
+      });
+
+      // send the list
+      const result = await fetch(`${SERVER_URL}/cart/meals`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          meals: idList,
+        }),
+      });
+
+      if (!result.ok) {
+        throw new Error("failed adding plan to the cart");
+      }
+
+      navigate("/cart");
+
+      const json = await result.json();
+      console.log(json?.message);
+    } catch (err) {
+      console.error(err);
     }
   }
 
@@ -216,7 +259,7 @@ function WeekTable({ tableName, mainPlan, edit = true }) {
             dinner={dinner}
             edit={edit}
             onChange={(status, val) => {
-              const selectedMeal = allMeals.find(m => m.name === val);
+              const selectedMeal = allMeals.find((m) => m.name === val);
               updateMeal(weekMeals, day, status, val, selectedMeal?.id);
             }}
           />
@@ -245,7 +288,12 @@ function WeekTable({ tableName, mainPlan, edit = true }) {
       ) : (
         <div>
           <button type="button">edit</button>
-          <button type="button">add to cart</button>
+          <button
+            type="button"
+            onClick={handleMealToCart}
+          >
+            add to cart
+          </button>
         </div>
       )}
     </>
