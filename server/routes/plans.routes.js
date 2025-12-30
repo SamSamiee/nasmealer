@@ -2,20 +2,21 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../db.js");
 const { authenticate } = require("../middlewares/auth.middleware.js");
+const days = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+];
+
+const mealTypes = ["breakfast", "lunch", "dinner"];
 
 // MAKE A PLAN
 router.post("/", authenticate, async (req, res) => {
-  const days = [
-    "monday",
-    "tuesday",
-    "wednesday",
-    "thursday",
-    "friday",
-    "saturday",
-    "sunday",
-  ];
-  const mealTypes = ["breakfast", "lunch", "dinner"];
-  const planName = req.body.planName;
+  const planName = req.body.plan_name;
   const meals = req.body.meals;
   if (!planName || !Array.isArray(meals)) {
     return res
@@ -74,14 +75,40 @@ router.get("/", authenticate, async (req, res) => {
     );
 
     const data = [];
-    result.rows.forEach(({ name, plan_id, meal_id, meal_name, type, day }) => {
-      let plan = data.find((i) => i.plan_id === plan_id);
+
+    for (const row of result.rows) {
+      const { plan_id, name: plan_name, day, type, meal_id, meal_name } = row;
+
+      // find or create plan
+      let plan = data.find((p) => p.plan_id === plan_id);
       if (!plan) {
-        plan = { name, plan_id, meals: [] };
+        plan = {
+          plan_id,
+          plan_name,
+          week_table: days.map((d) => ({
+            day: d,
+            meals: mealTypes.map((t) => ({
+              type: t,
+              meal_id: null,
+              meal_name: null,
+            })),
+          })),
+        };
         data.push(plan);
       }
-      plan.meals.push({ meal_id, meal_name, type, day });
-    });
+
+      // find day
+      const dayObj = plan.week_table.find((d) => d.day === day);
+      if (!dayObj) continue;
+
+      // find meal slot
+      const mealSlot = dayObj.meals.find((m) => m.type === type);
+      if (!mealSlot) continue;
+
+      // fill it
+      mealSlot.meal_id = meal_id;
+      mealSlot.meal_name = meal_name;
+    }
 
     return res.status(200).json({ status: "success", data });
   } catch (err) {
