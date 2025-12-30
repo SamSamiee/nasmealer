@@ -104,10 +104,25 @@ router.post("/meals", authenticate, async (req, res, next) => {
 
     // add the ingredients to the cart
     for (const { id, quantity, unit } of ingredients) {
-      await client.query(
-        "INSERT INTO cart_items (cart_id, product_id, ingredient_id, quantity, unit, type, status) VALUES ($1, NULL, $2, $3, $4, $5, $6) ON CONFLICT (cart_id, ingredient_id, unit, type) DO UPDATE SET quantity = cart_items.quantity + EXCLUDED.quantity",
-        [cartId, id, quantity, unit, "meal", "pending"]
+      // Check if this ingredient already exists in the cart
+      const existingItem = await client.query(
+        "SELECT id, quantity FROM cart_items WHERE cart_id = $1 AND ingredient_id = $2 AND unit = $3 AND type = $4 AND ingredient_id IS NOT NULL",
+        [cartId, id, unit, "meal"]
       );
+
+      if (existingItem.rows.length > 0) {
+        // Update existing item: add new quantity to existing quantity
+        await client.query(
+          "UPDATE cart_items SET quantity = quantity + $1 WHERE id = $2",
+          [quantity, existingItem.rows[0].id]
+        );
+      } else {
+        // Insert new item
+        await client.query(
+          "INSERT INTO cart_items (cart_id, product_id, ingredient_id, quantity, unit, type, status) VALUES ($1, NULL, $2, $3, $4, $5, $6)",
+          [cartId, id, quantity, unit, "meal", "pending"]
+        );
+      }
     }
     await client.query("COMMIT"); // commit changes
     res.status(201).json({ status: "success", ingredients });
