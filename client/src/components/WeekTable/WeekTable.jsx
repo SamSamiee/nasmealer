@@ -162,8 +162,6 @@ function WeekTable({ tableName, mainPlan, edit = true }) {
       meals: MEALS,
     };
 
-    console.log("Sending request:", requestBody);
-    console.log("MEALS array:", MEALS);
 
     try {
       const result = await fetch(`${SERVER_URL}/plans`, {
@@ -172,12 +170,12 @@ function WeekTable({ tableName, mainPlan, edit = true }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),
       });
-      
+
       if (!result.ok) {
         const errorData = await result.json().catch(() => ({ message: "Unknown error" }));
         throw new Error(errorData.message || "failed making plan");
       }
-      
+
       const json = await result.json();
       console.log(json);
       navigate("/plans");
