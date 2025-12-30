@@ -6,7 +6,7 @@ import {Navigate} from "react-router-dom"
 function Home() {
   const [data, setData] = React.useState(null);
   const [newMealPage, setNewMealPage] = React.useState(false)
-
+  const [newPlanPage, setNewPlanPage] = React.useState(false)
   React.useEffect(() => {
     async function getData() {
       try {
@@ -30,6 +30,10 @@ function Home() {
     return <Navigate to="/newmeal" />
   }
 
+  if(newPlanPage){
+    return <Navigate to="/newplan" />
+  }
+
   return (
     <div>
       <div>
@@ -48,6 +52,7 @@ function Home() {
       </div>
       <div>
         <button onClick={()=>setNewMealPage(true)}>add a new meal</button>
+        <button onClick={()=>setNewPlanPage(true)}>add a new plan</button>
       </div>
     </div>
   );
