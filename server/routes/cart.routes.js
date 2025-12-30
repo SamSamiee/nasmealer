@@ -175,10 +175,25 @@ router.post("/", authenticate, async (req, res, next) => {
       [name, userId]
     );
 
-    await client.query(
-      "INSERT INTO cart_items (cart_id, product_id, ingredient_id, quantity, unit) VALUES($1, $2, NULL, $3, $4) ON CONFLICT (cart_id, product_id, unit, type) DO UPDATE SET quantity = cart_items.quantity + EXCLUDED.quantity",
-      [cartId, productId, quantity, unit]
+    // Check if this product already exists in the cart
+    const existingItem = await client.query(
+      "SELECT id, quantity FROM cart_items WHERE cart_id = $1 AND product_id = $2 AND unit = $3 AND type = $4 AND product_id IS NOT NULL",
+      [cartId, productId, unit, "extra"]
     );
+
+    if (existingItem.rows.length > 0) {
+      // Update existing item: add new quantity to existing quantity
+      await client.query(
+        "UPDATE cart_items SET quantity = quantity + $1 WHERE id = $2",
+        [quantity, existingItem.rows[0].id]
+      );
+    } else {
+      // Insert new item
+      await client.query(
+        "INSERT INTO cart_items (cart_id, product_id, ingredient_id, quantity, unit, type, status) VALUES($1, $2, NULL, $3, $4, $5, $6)",
+        [cartId, productId, quantity, unit, "extra", "pending"]
+      );
+    }
     await client.query("COMMIT");
     res
       .status(201)

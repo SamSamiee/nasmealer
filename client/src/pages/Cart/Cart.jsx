@@ -7,50 +7,55 @@ function Cart() {
   const [ingredientList, setIngredientList] = React.useState([]);
   const [productList, setProductList] = React.useState([]);
   const [doneList, setDoneList] = React.useState([]);
+  const units = ["gr", "kg", "pieces", "ml", "liters"];
+  const [extraName, setExtraName] = React.useState("");
+  const [unit, setUnit] = React.useState("pieces");
+  const [quantity, setQuantity] = React.useState(1);
 
   // GET AND SORT ITEMS
-  React.useEffect(() => {
-    async function getItems() {
-      try {
-        setLoading(true);
-        const result = await fetch(`${SERVER_URL}/cart`, {
-          method: "GET",
-          credentials: "include",
-        });
-        if (!result.ok) {
-          throw new Error("failed fetching cart items");
-        }
-        const json = await result.json();
-
-        // placeholders
-        const ingredients = [];
-        const products = [];
-        const dones = [];
-
-        // initial sorting
-        json.data.forEach((i) => {
-          const { type, status } = i;
-          if (type === "meal" && status === "pending") {
-            ingredients.push(i);
-          }
-          if (type === "extra" && status === "pending") {
-            products.push(i);
-          }
-          if (status === "done") {
-            dones.push(i);
-          }
-        });
-
-        // change state
-        setIngredientList(ingredients);
-        setProductList(products);
-        setDoneList(dones);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+  async function getItems() {
+    try {
+      setLoading(true);
+      const result = await fetch(`${SERVER_URL}/cart`, {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!result.ok) {
+        throw new Error("failed fetching cart items");
       }
+      const json = await result.json();
+
+      // placeholders
+      const ingredients = [];
+      const products = [];
+      const dones = [];
+
+      // initial sorting
+      json.data.forEach((i) => {
+        const { type, status } = i;
+        if (type === "meal" && status === "pending") {
+          ingredients.push(i);
+        }
+        if (type === "extra" && status === "pending") {
+          products.push(i);
+        }
+        if (status === "done") {
+          dones.push(i);
+        }
+      });
+
+      // change state
+      setIngredientList(ingredients);
+      setProductList(products);
+      setDoneList(dones);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
+  }
+
+  React.useEffect(() => {
     getItems();
   }, []);
 
@@ -119,6 +124,66 @@ function Cart() {
     }
   }
 
+  //ADD PRODUCT
+  async function addProduct() {
+    // Validate input
+    if (!extraName || extraName.trim() === "") {
+      window.alert("Please enter a product name!");
+      return;
+    }
+
+    //make the new object (matching server response structure)
+    const newObject = {
+      item_name: extraName,  // Use item_name to match CartItem expectations
+      unit,
+      quantity,
+      type: "extra",
+      status: "pending",
+      id: crypto.randomUUID(),  // Temporary ID
+      item_id: null,  // Will be set by server
+    };
+
+    // productList backup
+    const previousProductList = [...productList];
+    // add the new object to the productList
+    setProductList((prev) => [...prev, newObject]);
+
+    // API call
+    try {
+      const result = await fetch(`${SERVER_URL}/cart`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          product: { 
+            name: extraName,  // Server expects 'name'
+            quantity, 
+            unit 
+          } 
+        }),
+      });
+      
+      if (!result.ok) {
+        throw new Error("could not send product to database");
+      }
+      
+      const json = await result.json();  // Fix: added parentheses
+      console.log(json);
+      
+      // Refetch cart items to get real database IDs
+      await getItems();
+      
+      // Clear the form
+      setExtraName("");
+      setQuantity(1);
+      setUnit("pieces");
+    } catch (err) {
+      setProductList(previousProductList);  // Fix: removed extra array wrapping
+      window.alert("could not add product :( try again");
+      console.error(err);
+    }
+  }
+
   // CLEAR ALL DONE ITEMS
   async function clearDoneItems() {
     if (doneList.length === 0) {
@@ -172,6 +237,43 @@ function Cart() {
           })}
         </div>
       )}
+      <div>
+        <input
+          type="text"
+          placeholder="add extra items"
+          value={extraName}
+          onChange={(e) => setExtraName(e.target.value)}
+        />
+        <select
+          id="unit"
+          name="unit"
+          value={unit}
+          onChange={(e) => setUnit(e.target.value)}
+        >
+          {units.map((i) => {
+            return (
+              <option
+                key={i}
+                value={i}
+              >
+                {i}
+              </option>
+            );
+          })}
+        </select>
+        <input
+          name="quantity"
+          type="number"
+          value={quantity}
+          onChange={(e) => setQuantity(Number(e.target.value))}
+        />
+        <button
+          type="button"
+          onClick={() => addProduct()}
+        >
+          +
+        </button>
+      </div>
       {productList.length > 0 && (
         <div>
           <h3>products</h3>
