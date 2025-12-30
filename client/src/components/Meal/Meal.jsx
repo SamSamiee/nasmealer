@@ -1,8 +1,14 @@
 import React from "react";
 import styles from "./Meal.module.css";
-import { meals } from "../../assets/meals";
 
-function Meal({ status, val = "", onChange, edit = true, placeholder="..." }) {
+function Meal({
+  availableMeals,
+  status,
+  val = "",
+  onChange,
+  edit = true,
+  placeholder = "...",
+}) {
   // set the status for whether the meal is a breakfast, lunch, or dinner
   let mealStatus = "";
   switch (status) {
@@ -36,11 +42,11 @@ function Meal({ status, val = "", onChange, edit = true, placeholder="..." }) {
         )}
         {val && <option value={val}>{val}</option>}
         <optgroup label="Meals">
-          {meals.map((meal) => {
+          {availableMeals?.map((meal) => {
             return (
               <option
                 value={meal.name}
-                key={meal.name}
+                key={meal.id}
               >
                 {meal.name}
               </option>

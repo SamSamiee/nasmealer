@@ -21,7 +21,6 @@ function Meals() {
         if (!result.ok) {
           throw new Error("fetching failed");
         }
-        console.log(json);
         setMealsList(json.meals);
       } catch (err) {
         console.error(err);
