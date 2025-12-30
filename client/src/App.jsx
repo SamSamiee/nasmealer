@@ -5,9 +5,10 @@ import Meals from "./pages/Meals";
 import Plans from "./pages/Plans";
 import NewPlan from "./pages/NewPlan";
 import NewMeal from "./pages/NewMeal";
+import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
 import Navbar from "./components/Navbar";
-import ProtectedRoute from "./components/ProtectedRoute"
+import ProtectedRoute from "./components/ProtectedRoute";
 import React from "react";
 import UserProvider from "./context/UserProvider";
 function App() {
@@ -22,32 +23,64 @@ function App() {
               element={<Login />}
             />
             <Route
+              path="/signUp"
+              element={<SignUp />}
+            />
+            <Route
               path="/"
-              element={<ProtectedRoute><Home /></ProtectedRoute>}
+              element={
+                <ProtectedRoute>
+                  <Home />
+                </ProtectedRoute>
+              }
             />
             <Route
               path="/cart"
-              element={<ProtectedRoute><Cart /></ProtectedRoute>}
+              element={
+                <ProtectedRoute>
+                  <Cart />
+                </ProtectedRoute>
+              }
             />
             <Route
               path="/newmeal"
-              element={<ProtectedRoute><NewMeal /></ProtectedRoute>}
+              element={
+                <ProtectedRoute>
+                  <NewMeal />
+                </ProtectedRoute>
+              }
             />
             <Route
               path="/newmeal/:mealId"
-              element={<ProtectedRoute><NewMeal /></ProtectedRoute>}
+              element={
+                <ProtectedRoute>
+                  <NewMeal />
+                </ProtectedRoute>
+              }
             />
             <Route
               path="/meals"
-              element={<ProtectedRoute><Meals /></ProtectedRoute>}
+              element={
+                <ProtectedRoute>
+                  <Meals />
+                </ProtectedRoute>
+              }
             />
             <Route
               path="/plans"
-              element={<ProtectedRoute><Plans /></ProtectedRoute>}
+              element={
+                <ProtectedRoute>
+                  <Plans />
+                </ProtectedRoute>
+              }
             />
             <Route
               path="/newplan"
-              element={<ProtectedRoute><NewPlan /></ProtectedRoute>}
+              element={
+                <ProtectedRoute>
+                  <NewPlan />
+                </ProtectedRoute>
+              }
             />
           </Routes>
         </BrowserRouter>

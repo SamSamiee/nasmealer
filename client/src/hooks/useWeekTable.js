@@ -66,6 +66,15 @@ export function useWeekTable(mainPlan, tableName) {
   const [allPlans, setAllPlans] = React.useState([]);
   const [name, setName] = React.useState(tableName || "");
 
+  // Reset state when component mounts with no mainPlan (new plan scenario)
+  React.useEffect(() => {
+    if (!mainPlan && !tableName) {
+      // New plan - ensure empty state
+      setWeekMeals(plan);
+      setName("");
+    }
+  }, []); // Only run on mount
+
   const navigate = useNavigate();
 
   // handle update
@@ -123,6 +132,20 @@ export function useWeekTable(mainPlan, tableName) {
     getAllPlans();
   }, []);
 
+  function handleReset() {
+    setWeekMeals((prev) => {
+      return prev.map((dayObj) => ({
+        ...dayObj,
+        meals: dayObj.meals.map((meal) => ({
+          ...meal,
+          meal_name: "",
+          meal_id: null,
+        })),
+      }));
+    });
+    setName(""); // Also reset the plan name
+  }
+
   //upload new plan
   async function handleSave() {
     // Validate name
@@ -164,7 +187,6 @@ export function useWeekTable(mainPlan, tableName) {
       plan_name: name.trim(),
       meals: MEALS,
     };
-
     try {
       const result = await fetch(`${SERVER_URL}/plans`, {
         method: "POST",
@@ -182,6 +204,8 @@ export function useWeekTable(mainPlan, tableName) {
 
       const json = await result.json();
       console.log(json);
+      // Reset form after successful save
+      handleReset();
       navigate("/plans");
     } catch (err) {
       console.error(err);
@@ -229,6 +253,7 @@ export function useWeekTable(mainPlan, tableName) {
   return {
     updateMeal,
     handleSave,
+    handleReset,
     handleMealToCart,
     weekMeals,
     setWeekMeals,

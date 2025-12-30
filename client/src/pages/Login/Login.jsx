@@ -1,11 +1,12 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { SERVER_URL } from "../../config/api.js";
 import { UserContext } from "../../context/UserProvider";
 
 function Login() {
   const { isAuthenticated, getUser } = React.useContext(UserContext);
-
+  const navigate = useNavigate();
   // idle, loading, success, error
   const [status, setStatus] = React.useState("idle");
   const [password, setPassword] = React.useState("");
@@ -82,6 +83,12 @@ function Login() {
       </form>
       {status === "error" && <p>wrong username or password</p>}
       {status === "failed" && <p>could not hit the server</p>}
+      <button
+        type="button"
+        onClick={() => navigate("/signup")}
+      >
+        Sign Up
+      </button>
     </>
   );
 }

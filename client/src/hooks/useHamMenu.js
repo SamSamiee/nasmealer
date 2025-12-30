@@ -2,7 +2,7 @@ import React from "react";
 import { UserContext } from "../context/UserProvider";
 import { SERVER_URL } from "../config/api.js";
 
-export function useHamMenu() {
+export function useHamMenu(loading, setLoading) {
   const [visible, setVisible] = React.useState(false);
   const { logUserOut } = React.useContext(UserContext);
 
@@ -47,7 +47,8 @@ export function useHamMenu() {
         setLoading(false);
         logUserOut();
       }
-    } catch {
+    } catch(err) {
+      console.error(err)
       setLoading(false);
     }
   }

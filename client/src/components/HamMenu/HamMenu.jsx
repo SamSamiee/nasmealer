@@ -13,7 +13,7 @@ const links = [
 function HamMenu({ children }) {
   const [loading, setLoading] = React.useState(false);
   const { visible, setVisible, containerRef, buttonRef, handleLogOut } =
-    useHamMenu();
+    useHamMenu(loading, setLoading);
 
   return (
     <div>

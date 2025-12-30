@@ -3,10 +3,11 @@ import Meal from "../Meal";
 import Day from "../Day";
 import { useWeekTable } from "../../hooks/useWeekTable";
 
-function WeekTable({ tableName, mainPlan, edit = true }) {
+function WeekTable({ tableName, mainPlan, edit = true, planId, onDelete }) {
   const {
     updateMeal,
     handleSave,
+    handleReset,
     handleMealToCart,
     weekMeals,
     setWeekMeals,
@@ -54,23 +55,8 @@ function WeekTable({ tableName, mainPlan, edit = true }) {
       })}
       {edit ? (
         <div>
-          <button onClick={() => handleSave()}>save</button>
-          <button
-            onClick={() =>
-              setWeekMeals((prev) => {
-                return prev.map((dayObj) => ({
-                  ...dayObj,
-                  meals: dayObj.meals.map((meal) => ({
-                    ...meal,
-                    meal_name: "",
-                    meal_id: null,
-                  })),
-                }));
-              })
-            }
-          >
-            reset
-          </button>
+          <button onClick={handleSave}>save</button>
+          <button onClick={handleReset}>reset</button>
         </div>
       ) : (
         <div>
@@ -80,6 +66,14 @@ function WeekTable({ tableName, mainPlan, edit = true }) {
           >
             add to cart
           </button>
+          {onDelete && planId && (
+            <button
+              type="button"
+              onClick={() => onDelete(planId)}
+            >
+              delete
+            </button>
+          )}
         </div>
       )}
     </>
