@@ -241,7 +241,7 @@ router.delete("/", authenticate, async (req, res, next) => {
   const userId = req.user.userId;
   try {
     await pool.query(
-      "DELETE FROM cart_items ci USING carts c WHERE ci.cart_id = c.id AND c.created_by = $1",
+      "DELETE FROM cart_items ci USING carts c WHERE ci.cart_id = c.id AND c.created_by = $1 AND ci.status = 'done'",
       [userId]
     );
     return res

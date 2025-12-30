@@ -7,7 +7,6 @@ import NewPlan from "./pages/NewPlan";
 import NewMeal from "./pages/NewMeal";
 import Login from "./pages/Login";
 import Navbar from "./components/Navbar";
-import MealCard from "./components/MealCard";
 import ProtectedRoute from "./components/ProtectedRoute"
 import React from "react";
 import UserProvider from "./context/UserProvider";

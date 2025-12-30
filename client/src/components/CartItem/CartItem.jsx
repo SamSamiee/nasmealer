@@ -1,6 +1,6 @@
 import React from "react";
 
-function CartItem({ type, name, quantity, unit }) {
+function CartItem({ type, name, quantity, unit, onClick, status }) {
   return (
     <div>
       <div>{name}</div>
@@ -8,7 +8,9 @@ function CartItem({ type, name, quantity, unit }) {
         <span>{quantity}</span>
         <span>{unit}</span>
       </div>
-      <button>-</button>
+      <button onClick={onClick}>
+        {status === "pending" ? "Mark as done" : "Mark as pending"}
+      </button>
     </div>
   );
 }
