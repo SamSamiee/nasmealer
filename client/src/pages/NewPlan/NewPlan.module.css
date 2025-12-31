@@ -1,4 +1,18 @@
 .container {
-  padding: 20px;
+  
+  padding: 10px;
+  
+  
+  max-width: 1200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 10px 5px;
+  }
 }
 
