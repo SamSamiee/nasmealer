@@ -12,9 +12,11 @@ export function useCart() {
   const [quantity, setQuantity] = React.useState(1);
 
   // GET AND SORT ITEMS
-  async function getItems() {
+  async function getItems(silent = false) {
     try {
-      setLoading(true);
+      if (!silent) {
+        setLoading(true);
+      }
       const result = await fetch(`${SERVER_URL}/cart`, {
         method: "GET",
         credentials: "include",
@@ -50,7 +52,9 @@ export function useCart() {
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
     }
   }
 
@@ -131,6 +135,8 @@ export function useCart() {
       return;
     }
 
+    const tempId = crypto.randomUUID();
+    
     //make the new object (matching server response structure)
     const newObject = {
       item_name: extraName,  // Use item_name to match CartItem expectations
@@ -138,14 +144,23 @@ export function useCart() {
       quantity,
       type: "extra",
       status: "pending",
-      id: crypto.randomUUID(),  // Temporary ID
+      id: tempId,  // Temporary ID
       item_id: null,  // Will be set by server
+      isPending: true,  // Flag to mark as pending
     };
 
     // productList backup
     const previousProductList = [...productList];
-    // add the new object to the productList
+    // add the new object to the productList optimistically
     setProductList((prev) => [...prev, newObject]);
+
+    // Clear the form immediately
+    const savedName = extraName;
+    const savedQuantity = quantity;
+    const savedUnit = unit;
+    setExtraName("");
+    setQuantity(1);
+    setUnit("pieces");
 
     // API call
     try {
@@ -155,9 +170,9 @@ export function useCart() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           product: {
-            name: extraName,  // Server expects 'name'
-            quantity,
-            unit
+            name: savedName,  // Server expects 'name'
+            quantity: savedQuantity,
+            unit: savedUnit
           }
         }),
       });
@@ -166,18 +181,15 @@ export function useCart() {
         throw new Error("could not send product to database");
       }
 
-      const json = await result.json();  // Fix: added parentheses
-      console.log(json);
-
-      // Refetch cart items to get real database IDs
-      await getItems();
-
-      // Clear the form
-      setExtraName("");
-      setQuantity(1);
-      setUnit("pieces");
+      // Refetch cart items silently to get real database IDs (without showing loading)
+      await getItems(true);
     } catch (err) {
-      setProductList(previousProductList);  // Fix: removed extra array wrapping
+      // Rollback: remove the pending item
+      setProductList(previousProductList);
+      // Restore form values
+      setExtraName(savedName);
+      setQuantity(savedQuantity);
+      setUnit(savedUnit);
       window.alert("could not add product :( try again");
       console.error(err);
     }

@@ -38,8 +38,8 @@ function Home() {
     <div>
       <div>
         <Card
-          header={data?.number_of_ingredients}
-          footer="ingredients"
+          header={data?.number_of_pending_cart_items}
+          footer="pending cart items"
         />
         <Card
           header={data?.number_of_meals}
@@ -57,5 +57,5 @@ function Home() {
     </div>
   );
 }
-
+  
 export default Home;

@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../db.js");
 const { authenticate } = require("../middlewares/auth.middleware.js");
+const bcrypt = require("bcrypt");
 
 // HOMEPAGE
 router.get("/", authenticate, async (req, res, next) => {
@@ -14,12 +15,14 @@ router.get("/", authenticate, async (req, res, next) => {
     );
     const number_of_meals = meals.rows[0].count;
 
-    // getting n.ingredients
-    const ingredients = await pool.query(
-      `SELECT COUNT(*) FROM ingredients WHERE created_by=$1`,
+    // getting n.cart items (pending)
+    const pending_cart_items = await pool.query(
+      `SELECT COUNT(*) as count FROM cart_items ci
+       JOIN carts c ON ci.cart_id = c.id
+       WHERE c.created_by = $1 AND ci.status = 'pending'`,
       [userId]
     );
-    const number_of_ingredients = ingredients.rows[0].count;
+    const number_of_pending_cart_items = parseInt(pending_cart_items.rows[0]?.count || 0, 10);
 
     // getting n.plans
     const plans = await pool.query(
@@ -76,7 +79,7 @@ router.get("/", authenticate, async (req, res, next) => {
     }
 
     return res.status(200).json({
-      number_of_ingredients,
+      number_of_pending_cart_items,
       number_of_meals,
       number_of_plans,
       last_plan,
@@ -108,10 +111,13 @@ router.post("/signup", async (req, res, next) => {
         .status(400)
         .json({ error: "the username or email is already taken." });
     }
+    // hash the password before storing
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
     // create new user
     const newUser = await pool.query(
       "INSERT INTO users (username, password, name, age, email, role) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
-      [username, password, name, age, email, "user"]
+      [username, hashedPassword, name, age, email, "user"]
     );
     return res.status(201).json({
       status: "success",
@@ -142,9 +148,10 @@ router.post("/login", async (req, res, next) => {
     if (user.rows.length === 0) {
       return res.status(400).json({ error: "invalid username or password" });
     }
-    //password check
-    const userPassword = user.rows[0].password;
-    if (userPassword !== password) {
+    //password check - compare hashed password with provided password
+    const hashedPassword = user.rows[0].password;
+    const isPasswordValid = await bcrypt.compare(password, hashedPassword);
+    if (!isPasswordValid) {
       return res.status(400).json({ error: "invalid username or password" });
     }
 

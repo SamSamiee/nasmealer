@@ -84,7 +84,7 @@ function Cart() {
         <div>
           <h3>products</h3>
           {productList.map((item) => {
-            const { status, id, item_name, quantity, unit, type } = item;
+            const { status, id, item_name, quantity, unit, type, isPending } = item;
             return (
               <CartItem
                 key={id}
@@ -93,6 +93,7 @@ function Cart() {
                 unit={unit}
                 name={item_name}
                 status={status}
+                isPending={isPending}
                 onClick={() => toggleStatus(item)}
               />
             );

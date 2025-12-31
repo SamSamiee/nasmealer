@@ -9,7 +9,7 @@ function NewPlan() {
   const [loading, setLoading] = React.useState(false);
   const navigate = useNavigate();
 
-  // GET ALL PLANS
+  // GET ALL MEALS
   async function getAllMeals() {
     setLoading(true);
     try {
@@ -23,8 +23,7 @@ function NewPlan() {
       }
 
       const json = await result.json();
-      const raw = json.data;
-      console.log(raw);
+      const raw = json.meals;
       setData(raw);
     } catch (err) {
       console.error(err);
@@ -36,6 +35,15 @@ function NewPlan() {
   React.useEffect(() => {
     getAllMeals();
   }, []);
+
+  if (loading) {
+    return (
+      <PIP
+        header="^...^"
+        footer="loading..."
+      />
+    );
+  }
 
   if (!data?.length > 0) {
     return (

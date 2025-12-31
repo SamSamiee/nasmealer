@@ -7,7 +7,7 @@ const { authenticate } = require("../middlewares/auth.middleware.js");
 router.get("/", authenticate, async (req, res, next) => {
   try {
     const result = await pool.query(
-      "SELECT mi.quantity AS quantity, mi.unit AS unit, m.id AS meal_id, m.name AS meal_name, mi.ingredient_id AS ingredient_id, i.name AS ingredient_name FROM meals m JOIN meal_ingredients mi ON m.id = mi.meal_id JOIN ingredients i ON mi.ingredient_id = i.id WHERE m.created_by = $1",
+      "SELECT mi.quantity AS quantity, mi.unit AS unit, m.id AS meal_id, m.name AS meal_name, mi.ingredient_id AS ingredient_id, i.name AS ingredient_name FROM meals m LEFT JOIN meal_ingredients mi ON m.id = mi.meal_id LEFT JOIN ingredients i ON mi.ingredient_id = i.id WHERE m.created_by = $1 ORDER BY m.created_at DESC, m.name",
       [req.user.userId]
     );
 
@@ -28,12 +28,15 @@ router.get("/", authenticate, async (req, res, next) => {
           meals.push(meal);
         }
 
-        meal.ingredients.push({
-          name: ingredient_name,
-          id: ingredient_id,
-          unit,
-          quantity,
-        });
+        // Only add ingredient if it exists (not null)
+        if (ingredient_id && ingredient_name) {
+          meal.ingredients.push({
+            name: ingredient_name,
+            id: ingredient_id,
+            unit,
+            quantity,
+          });
+        }
       }
     );
 
@@ -47,14 +50,21 @@ router.get("/", authenticate, async (req, res, next) => {
 router.get("/:mealID", authenticate, async (req, res, next) => {
   const { mealID } = req.params;
   try {
-    const result = await pool.query(
-      "SELECT mi.quantity AS quantity, mi.unit AS unit, m.id AS meal_id, m.name AS meal_name, mi.ingredient_id AS ingredient_id, i.name AS ingredient_name FROM meals m JOIN meal_ingredients mi ON m.id = mi.meal_id JOIN ingredients i ON mi.ingredient_id = i.id WHERE m.id = $1 AND m.created_by = $2",
+    // First check if meal exists
+    const mealCheck = await pool.query(
+      "SELECT id, name FROM meals WHERE id = $1 AND created_by = $2",
       [mealID, req.user.userId]
     );
 
-    if (result.rows.length === 0) {
+    if (mealCheck.rows.length === 0) {
       return res.status(404).json({ error: "meal not found" });
     }
+
+    // Get ingredients with LEFT JOIN to include meals without ingredients
+    const result = await pool.query(
+      "SELECT mi.quantity AS quantity, mi.unit AS unit, m.id AS meal_id, m.name AS meal_name, mi.ingredient_id AS ingredient_id, i.name AS ingredient_name FROM meals m LEFT JOIN meal_ingredients mi ON m.id = mi.meal_id LEFT JOIN ingredients i ON mi.ingredient_id = i.id WHERE m.id = $1 AND m.created_by = $2",
+      [mealID, req.user.userId]
+    );
 
     const ingredients = [];
     const meal = {
@@ -64,12 +74,15 @@ router.get("/:mealID", authenticate, async (req, res, next) => {
     };
 
     result.rows.forEach((row) => {
-      ingredients.push({
-        name: row.ingredient_name,
-        id: row.ingredient_id,
-        quantity: row.quantity,
-        unit: row.unit,
-      });
+      // Only add ingredient if it exists (not null)
+      if (row.ingredient_id && row.ingredient_name) {
+        ingredients.push({
+          name: row.ingredient_name,
+          id: row.ingredient_id,
+          quantity: row.quantity,
+          unit: row.unit,
+        });
+      }
     });
 
     return res.json({ meal });

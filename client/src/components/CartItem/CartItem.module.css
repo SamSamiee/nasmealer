@@ -1,0 +1,9 @@
+.wrapper {
+  /* Default styling - will be overridden if needed */
+}
+
+.pending {
+  opacity: 0.5;
+  color: #999;
+}
+
