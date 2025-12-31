@@ -1,79 +1,87 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { SERVER_URL } from "../config/api.js";
-const plan = [
-  {
-    day: "monday",
-    meals: [
-      { type: "breakfast", meal_name: "", meal_id: "" },
-      { type: "lunch", meal_name: "", meal_id: "" },
-      { type: "dinner", meal_name: "", meal_type: "" },
-    ],
-  },
-  {
-    day: "tuesday",
-    meals: [
-      { type: "breakfast", meal_name: "", meal_id: "" },
-      { type: "lunch", meal_name: "", meal_id: "" },
-      { type: "dinner", meal_name: "", meal_type: "" },
-    ],
-  },
-  {
-    day: "wednesday",
-    meals: [
-      { type: "breakfast", meal_name: "", meal_id: "" },
-      { type: "lunch", meal_name: "", meal_id: "" },
-      { type: "dinner", meal_name: "", meal_type: "" },
-    ],
-  },
-  {
-    day: "thursday",
-    meals: [
-      { type: "breakfast", meal_name: "", meal_id: "" },
-      { type: "lunch", meal_name: "", meal_id: "" },
-      { type: "dinner", meal_name: "", meal_type: "" },
-    ],
-  },
-  {
-    day: "friday",
-    meals: [
-      { type: "breakfast", meal_name: "", meal_id: "" },
-      { type: "lunch", meal_name: "", meal_id: "" },
-      { type: "dinner", meal_name: "", meal_type: "" },
-    ],
-  },
-  {
-    day: "saturday",
-    meals: [
-      { type: "breakfast", meal_name: "", meal_id: "" },
-      { type: "lunch", meal_name: "", meal_id: "" },
-      { type: "dinner", meal_name: "", meal_type: "" },
-    ],
-  },
-  {
-    day: "sunday",
-    meals: [
-      { type: "breakfast", meal_name: "", meal_id: "" },
-      { type: "lunch", meal_name: "", meal_id: "" },
-      { type: "dinner", meal_name: "", meal_type: "" },
-    ],
-  },
-];
+
+// Function to create a fresh copy of the plan template
+function getEmptyPlan() {
+  return [
+    {
+      day: "monday",
+      meals: [
+        { type: "breakfast", meal_name: "", meal_id: "" },
+        { type: "lunch", meal_name: "", meal_id: "" },
+        { type: "dinner", meal_name: "", meal_id: "" },
+      ],
+    },
+    {
+      day: "tuesday",
+      meals: [
+        { type: "breakfast", meal_name: "", meal_id: "" },
+        { type: "lunch", meal_name: "", meal_id: "" },
+        { type: "dinner", meal_name: "", meal_id: "" },
+      ],
+    },
+    {
+      day: "wednesday",
+      meals: [
+        { type: "breakfast", meal_name: "", meal_id: "" },
+        { type: "lunch", meal_name: "", meal_id: "" },
+        { type: "dinner", meal_name: "", meal_id: "" },
+      ],
+    },
+    {
+      day: "thursday",
+      meals: [
+        { type: "breakfast", meal_name: "", meal_id: "" },
+        { type: "lunch", meal_name: "", meal_id: "" },
+        { type: "dinner", meal_name: "", meal_id: "" },
+      ],
+    },
+    {
+      day: "friday",
+      meals: [
+        { type: "breakfast", meal_name: "", meal_id: "" },
+        { type: "lunch", meal_name: "", meal_id: "" },
+        { type: "dinner", meal_name: "", meal_id: "" },
+      ],
+    },
+    {
+      day: "saturday",
+      meals: [
+        { type: "breakfast", meal_name: "", meal_id: "" },
+        { type: "lunch", meal_name: "", meal_id: "" },
+        { type: "dinner", meal_name: "", meal_id: "" },
+      ],
+    },
+    {
+      day: "sunday",
+      meals: [
+        { type: "breakfast", meal_name: "", meal_id: "" },
+        { type: "lunch", meal_name: "", meal_id: "" },
+        { type: "dinner", meal_name: "", meal_id: "" },
+      ],
+    },
+  ];
+}
 
 export function useWeekTable(mainPlan, tableName) {
-  const [weekMeals, setWeekMeals] = React.useState(mainPlan || plan);
+  const location = useLocation();
+  const [weekMeals, setWeekMeals] = React.useState(() => {
+    // Initialize with mainPlan if provided, otherwise use fresh empty plan
+    return mainPlan ? JSON.parse(JSON.stringify(mainPlan)) : getEmptyPlan();
+  });
   const [allMeals, setAllMeals] = React.useState([]);
   const [allPlans, setAllPlans] = React.useState([]);
   const [name, setName] = React.useState(tableName || "");
 
-  // Reset state when component mounts with no mainPlan (new plan scenario)
+  // Reset state when navigating to new plan page (no mainPlan and no tableName)
   React.useEffect(() => {
-    if (!mainPlan && !tableName) {
-      // New plan - ensure empty state
-      setWeekMeals(plan);
+    if (!mainPlan && !tableName && location.pathname === "/newplan") {
+      // New plan - reset to empty state with fresh copy
+      setWeekMeals(getEmptyPlan());
       setName("");
     }
-  }, []); // Only run on mount
+  }, [location.pathname, mainPlan, tableName]);
 
   const navigate = useNavigate();
 
@@ -133,16 +141,8 @@ export function useWeekTable(mainPlan, tableName) {
   }, []);
 
   function handleReset() {
-    setWeekMeals((prev) => {
-      return prev.map((dayObj) => ({
-        ...dayObj,
-        meals: dayObj.meals.map((meal) => ({
-          ...meal,
-          meal_name: "",
-          meal_id: null,
-        })),
-      }));
-    });
+    // Reset to a fresh empty plan template
+    setWeekMeals(getEmptyPlan());
     setName(""); // Also reset the plan name
   }
 

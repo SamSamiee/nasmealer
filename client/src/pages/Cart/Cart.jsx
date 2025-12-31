@@ -21,6 +21,8 @@ function Cart() {
     clearDoneItems,
   } = useCart();
 
+  const extraProductInputRef = React.useRef(null);
+
   return loading ? (
     <p className={styles.loading}>loading</p>
   ) : (
@@ -46,6 +48,7 @@ function Cart() {
       )}
       <div className={styles.addItemForm}>
         <input
+          ref={extraProductInputRef}
           type="text"
           placeholder="add extra items"
           value={extraName}
@@ -76,7 +79,13 @@ function Cart() {
         />
         <button
           type="button"
-          onClick={() => addProduct()}
+          onClick={async () => {
+            await addProduct();
+            // Focus back on the input field after adding product
+            setTimeout(() => {
+              extraProductInputRef.current?.focus();
+            }, 0);
+          }}
         >
           +
         </button>

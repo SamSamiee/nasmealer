@@ -21,6 +21,8 @@ function NewMeal({ initial }) {
     handleReset,
   } = useNewMeal(initial);
 
+  const ingredientNameRef = React.useRef(null);
+
   return isLoading ? (
     <p className={styles.loading}>loading</p>
   ) : (
@@ -44,6 +46,7 @@ function NewMeal({ initial }) {
             <div className={styles.formGroup}>
               <label htmlFor="ingredient-name">Name</label>
               <input
+                ref={ingredientNameRef}
                 type="text"
                 name="ingredient-name"
                 id="ingredient-name"
@@ -93,6 +96,8 @@ function NewMeal({ initial }) {
                   { name, unit, quantity, id: crypto.randomUUID() },
                 ]);
                 handleReset();
+                // Focus back on the ingredient name input
+                ingredientNameRef.current?.focus();
               }}
             >
               +
