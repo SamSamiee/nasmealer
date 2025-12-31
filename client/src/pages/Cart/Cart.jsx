@@ -1,6 +1,7 @@
 import React from "react";
 import CartItem from "../../components/CartItem";
 import { useCart } from "../../hooks/useCart";
+import styles from "./Cart.module.css";
 
 function Cart() {
   const {
@@ -21,12 +22,12 @@ function Cart() {
   } = useCart();
 
   return loading ? (
-    <p>loading</p>
+    <p className={styles.loading}>loading</p>
   ) : (
-    <div>
+    <div className={styles.container}>
       {ingredientList.length > 0 && (
-        <div>
-          <h3>ingredients</h3>
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>ingredients</h3>
           {ingredientList.map((item) => {
             const { status, id, item_name, quantity, unit, type } = item;
             return (
@@ -43,7 +44,7 @@ function Cart() {
           })}
         </div>
       )}
-      <div>
+      <div className={styles.addItemForm}>
         <input
           type="text"
           placeholder="add extra items"
@@ -81,8 +82,8 @@ function Cart() {
         </button>
       </div>
       {productList.length > 0 && (
-        <div>
-          <h3>products</h3>
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>products</h3>
           {productList.map((item) => {
             const { status, id, item_name, quantity, unit, type, isPending } = item;
             return (
@@ -101,8 +102,8 @@ function Cart() {
         </div>
       )}
       {doneList.length > 0 && (
-        <div>
-          <h3>completed</h3>
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>completed</h3>
           {doneList.map((item) => {
             const { status, id, item_name, quantity, unit, type } = item;
             return (
@@ -117,7 +118,7 @@ function Cart() {
               />
             );
           })}
-          <button onClick={clearDoneItems}>Clear</button>
+          <button className={styles.clearButton} onClick={clearDoneItems}>Clear</button>
         </div>
       )}
     </div>

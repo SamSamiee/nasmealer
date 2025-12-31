@@ -1,27 +1,36 @@
 import React from "react";
+import styles from "./MealCard.module.css";
 
 function MealCard({ name, list, fnEdit, fnRemove }) {
   return (
-    <div>
-      <h4>{name}</h4>
-      {fnEdit && (
-        <button
-          type="button"
-          onClick={() => fnEdit()}
-        >
-          edit
-        </button>
-      )}
-      {fnRemove && (
-        <button
-          type="button"
-          onClick={() => fnRemove()}
-        >
-          remove
-        </button>
-      )}
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h4 className={styles.title}>{name}</h4>
+        {(fnEdit || fnRemove) && (
+          <div className={styles.actions}>
+            {fnEdit && (
+              <button
+                className={styles.actionButton}
+                type="button"
+                onClick={() => fnEdit()}
+              >
+                edit
+              </button>
+            )}
+            {fnRemove && (
+              <button
+                className={styles.actionButton}
+                type="button"
+                onClick={() => fnRemove()}
+              >
+                -
+              </button>
+            )}
+          </div>
+        )}
+      </div>
       {list && (
-        <p>
+        <p className={styles.ingredients}>
           {list.slice(0, 3).map((item) => (
             <span key={item.id}>{item.name}, </span>
           ))}

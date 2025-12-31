@@ -1,0 +1,26 @@
+.container {
+  padding: 20px;
+}
+
+.cardsContainer {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+  
+  justify-content: center;
+  align-items: center;
+}
+
+.actionsContainer {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.actionsContainer button {
+  min-width: 150px;
+}
+

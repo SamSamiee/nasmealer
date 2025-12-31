@@ -1,5 +1,7 @@
 import React from "react";
 import Meal from "../Meal";
+import styles from "./Day.module.css";
+
 function Day({
   availableMeals,
   day,
@@ -37,29 +39,31 @@ function Day({
   }
 
   return (
-    <div>
-      <h2>{DAY}</h2>
-      <Meal
-        availableMeals={availableMeals}
-        edit={edit}
-        status="breakfast"
-        val={breakfast}
-        onChange={(val) => onChange((status = "breakfast"), val)}
-      />
-      <Meal
-        availableMeals={availableMeals}
-        edit={edit}
-        status="lunch"
-        val={lunch}
-        onChange={(val) => onChange((status = "lunch"), val)}
-      />
-      <Meal
-        availableMeals={availableMeals}
-        edit={edit}
-        status="dinner"
-        val={dinner}
-        onChange={(val) => onChange((status = "dinner"), val)}
-      />
+    <div className={styles.container}>
+      <h2 className={styles.dayTitle}>{DAY}</h2>
+      <div className={styles.mealsContainer}>
+        <Meal
+          availableMeals={availableMeals}
+          edit={edit}
+          status="breakfast"
+          val={breakfast}
+          onChange={(val) => onChange("breakfast", val)}
+        />
+        <Meal
+          availableMeals={availableMeals}
+          edit={edit}
+          status="lunch"
+          val={lunch}
+          onChange={(val) => onChange("lunch", val)}
+        />
+        <Meal
+          availableMeals={availableMeals}
+          edit={edit}
+          status="dinner"
+          val={dinner}
+          onChange={(val) => onChange("dinner", val)}
+        />
+      </div>
     </div>
   );
 }

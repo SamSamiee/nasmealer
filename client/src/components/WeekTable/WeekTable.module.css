@@ -1,0 +1,46 @@
+.container {
+  padding: 20px;
+  margin-bottom: 30px;
+  border: 1px solid #e0e0e0;
+  border-radius: var(--border-radius-l);
+  background-color: #fff;
+}
+
+.title {
+  font-size: 2em;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.titleInput {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: var(--border-radius-m);
+  font-size: 1.5em;
+  font-weight: bold;
+  width: 100%;
+  max-width: 400px;
+}
+
+.titleInput:focus {
+  outline: none;
+  border-color: #000;
+}
+
+.daysContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.actions button {
+  min-width: 120px;
+}
+

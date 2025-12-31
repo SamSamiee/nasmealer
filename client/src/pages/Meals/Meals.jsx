@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import MealCard from "../../components/MealCard";
 import { SERVER_URL } from "../../config/api.js";
 import PIP from "../../components/PIP";
+import styles from "./Meals.module.css";
 
 function Meals() {
   const [mealsList, setMealsList] = React.useState([]);
@@ -66,18 +67,22 @@ function Meals() {
       footer="loading..."
     />
   ) : (
-    <div>
+    <div className={styles.container}>
       {mealsList.length > 0 ? (
         <div>
-          <button onClick={() => navigate("/newmeal")}>new meal</button>
-          {mealsList.map(({ name, id, ingredients }) => (
-            <MealCard
-              key={id}
-              name={name}
-              list={ingredients}
-              fnRemove={() => handleDeleteMeal(id)}
-            />
-          ))}
+          <div className={styles.header}>
+            <button className={styles.newMealButton} onClick={() => navigate("/newmeal")}>new meal</button>
+          </div>
+          <div className={styles.mealsList}>
+            {mealsList.map(({ name, id, ingredients }) => (
+              <MealCard
+                key={id}
+                name={name}
+                list={ingredients}
+                fnRemove={() => handleDeleteMeal(id)}
+              />
+            ))}
+          </div>
         </div>
       ) : (
         <PIP

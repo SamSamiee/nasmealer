@@ -3,6 +3,7 @@ import { SERVER_URL } from "../../config/api.js";
 import WeekTable from "../../components/WeekTable";
 import PIP from "../../components/PIP";
 import { useNavigate } from "react-router-dom";
+import styles from "./Plans.module.css";
 
 function Plans() {
   const [loading, setLoading] = React.useState(false);
@@ -70,22 +71,26 @@ function Plans() {
       footer="loading..."
     />
   ) : (
-    <div>
+    <div className={styles.container}>
       {data.length > 0 ? (
         <div>
-          <button onClick={() => navigate("/newplan")}>new plan</button>
-          {data.map(({ plan_name, plan_id, week_table }) => {
-            return (
-              <WeekTable
-                tableName={plan_name}
-                key={plan_id}
-                planId={plan_id}
-                mainPlan={week_table}
-                edit={false}
-                onDelete={handleDeletePlan}
-              />
-            );
-          })}
+          <div className={styles.header}>
+            <button className={styles.newPlanButton} onClick={() => navigate("/newplan")}>new plan</button>
+          </div>
+          <div className={styles.plansList}>
+            {data.map(({ plan_name, plan_id, week_table }) => {
+              return (
+                <WeekTable
+                  tableName={plan_name}
+                  key={plan_id}
+                  planId={plan_id}
+                  mainPlan={week_table}
+                  edit={false}
+                  onDelete={handleDeletePlan}
+                />
+              );
+            })}
+          </div>
         </div>
       ) : (
         <PIP

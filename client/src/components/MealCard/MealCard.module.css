@@ -1,0 +1,51 @@
+.container {
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: var(--border-radius-l);
+  margin-bottom: 15px;
+  background-color: #fff;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.title {
+  font-size: 1.3em;
+  font-weight: bold;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.actionButton {
+  padding: 6px 12px;
+  font-size: 16px;
+  font-weight:bold;
+  color: var(--accent-color-red);
+  box-shadow: non;
+  background-color: white;
+  &:hover{
+    background-color: var(--accent-color-red);
+    color: white;
+  }
+}
+
+.ingredients {
+  color: #666;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.ingredients span {
+  margin-right: 5px;
+}
+

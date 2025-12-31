@@ -2,6 +2,7 @@ import React from "react";
 import { SERVER_URL } from "../../config/api.js";
 import Card from "../../components/Card";
 import {Navigate} from "react-router-dom"
+import styles from "./Home.module.css";
 
 function Home() {
   const [data, setData] = React.useState(null);
@@ -35,24 +36,27 @@ function Home() {
   }
 
   return (
-    <div>
-      <div>
+    <div className={styles.container}>
+      <div className={styles.cardsContainer}>
         <Card
-          header={data?.number_of_pending_cart_items}
-          footer="pending cart items"
+          header={data?.number_of_pending_cart_items || 0}
+          footer="items"
+          path="cart"
         />
         <Card
-          header={data?.number_of_meals}
+          header={data?.number_of_meals || 0}
           footer="meals"
+          path="meals"
         />
         <Card
-          header={data?.number_of_plans}
+          header={data?.number_of_plans || 0}
           footer="plans"
+          path="plans"
         />
       </div>
-      <div>
-        <button onClick={()=>setNewMealPage(true)}>add a new meal</button>
-        <button onClick={()=>setNewPlanPage(true)}>add a new plan</button>
+      <div className={styles.actionsContainer}>
+        <button onClick={()=>setNewMealPage(true)}>new meal</button>
+        <button onClick={()=>setNewPlanPage(true)}>new plan</button>
       </div>
     </div>
   );

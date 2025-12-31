@@ -7,5 +7,18 @@ export default defineConfig({
   server: {
     port: 3000,
     strictPort: false,
+    watch: {
+      usePolling: true,
+      interval: 1000,
+    },
+    hmr: {
+      overlay: true,
+    },
+  },
+  css: {
+    modules: {
+      localsConvention: 'camelCase',
+    },
+    devSourcemap: true,
   },
 })

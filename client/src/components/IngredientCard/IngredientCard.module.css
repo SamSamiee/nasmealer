@@ -1,0 +1,35 @@
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-radius: var(--border-radius-m);
+  background-color: white;
+  margin-bottom: 8px;
+  box-shadow: var(--shadow-elevation-medium);
+  width: 100%;
+  max-width: 500px;
+  box-sizing: border-box;
+}
+
+.name {
+  flex: 1;
+  font-weight: 500;
+}
+
+.quantity {
+  margin: 0 15px;
+  color: #666;
+}
+
+.button {
+  padding: 6px 12px;
+  font-size: 18px;
+  color: var(--accent-color-red);
+  background-color: white;
+  &:hover{
+    background-color: var(--accent-color-red);
+    color: white;
+  }
+}
+

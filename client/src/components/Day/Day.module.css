@@ -1,0 +1,21 @@
+.container {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: var(--border-radius-l);
+}
+
+.dayTitle {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.mealsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+

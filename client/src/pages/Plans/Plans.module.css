@@ -1,0 +1,18 @@
+.container {
+  padding: 20px;
+}
+
+.header {
+  margin-bottom: 20px;
+}
+
+.newPlanButton {
+  margin-bottom: 20px;
+}
+
+.plansList {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+

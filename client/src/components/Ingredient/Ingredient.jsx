@@ -1,9 +1,10 @@
 import React from "react";
+import styles from "./Ingredient.module.css";
 
 function Ingredient({ name }) {
   return (
-    <div>
-      <h3>{name}</h3>
+    <div className={styles.container}>
+      <h3 className={styles.title}>{name}</h3>
     </div>
   );
 }

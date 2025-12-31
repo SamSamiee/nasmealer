@@ -2,6 +2,7 @@ import React from "react";
 import { SERVER_URL } from "../../config/api.js";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../context/UserProvider/UserProvider";
+import styles from "./SignUp.module.css";
 
 function SignUp() {
   const [username, setUsername] = React.useState("");
@@ -64,52 +65,62 @@ function SignUp() {
     }
   }
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor={usernameId}>username</label>
-        <input
-          type="text"
-          id={usernameId}
-          required
-          placeholder="insert your username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <label htmlFor={emailId}>email</label>
-        <input
-          type="email"
-          id={emailId}
-          required
-          placeholder="insert your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <label htmlFor={nameId}>name</label>
-        <input
-          type="text"
-          id={nameId}
-          placeholder="insert your name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <label htmlFor={ageId}>age</label>
-        <input
-          type="number"
-          id={ageId}
-          placeholder="insert your age"
-          value={age}
-          onChange={(e) => setAge(Number(e.target.value))}
-        />
-        <label htmlFor={passwordId}>password</label>
-        <input
-          type="password"
-          required
-          id={passwordId}
-          placeholder="insert your password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button type="submit">Sign Up</button>
+    <div className={styles.container}>
+      <form className={styles.form} onSubmit={handleSubmit}>
+        <div className={styles.formGroup}>
+          <label htmlFor={usernameId}>username</label>
+          <input
+            type="text"
+            id={usernameId}
+            required
+            placeholder="insert your username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+        </div>
+        <div className={styles.formGroup}>
+          <label htmlFor={emailId}>email</label>
+          <input
+            type="email"
+            id={emailId}
+            required
+            placeholder="insert your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+        <div className={styles.formGroup}>
+          <label htmlFor={nameId}>name</label>
+          <input
+            type="text"
+            id={nameId}
+            placeholder="insert your name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </div>
+        <div className={styles.formGroup}>
+          <label htmlFor={ageId}>age</label>
+          <input
+            type="number"
+            id={ageId}
+            placeholder="insert your age"
+            value={age}
+            onChange={(e) => setAge(Number(e.target.value))}
+          />
+        </div>
+        <div className={styles.formGroup}>
+          <label htmlFor={passwordId}>password</label>
+          <input
+            type="password"
+            required
+            id={passwordId}
+            placeholder="insert your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        <button className={styles.submitButton} type="submit">Sign Up</button>
       </form>
     </div>
   );

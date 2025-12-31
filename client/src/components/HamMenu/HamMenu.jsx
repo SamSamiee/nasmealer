@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useHamMenu } from "../../hooks/useHamMenu.js";
 import styles from "./HamMenu.module.css";
+import { HiMenu } from "react-icons/hi";
 
 const links = [
   { name: "home", to: "/" },
@@ -16,12 +17,14 @@ function HamMenu({ children }) {
     useHamMenu(loading, setLoading);
 
   return (
-    <div>
+    <div className={styles.wrapper}>
       <button
+        className={styles.button}
         ref={buttonRef}
         onClick={() => setVisible((current) => !current)}
+        aria-label="Menu"
       >
-        {children}
+        <HiMenu size={24} color="#ffffff" />
       </button>
       {visible && (
         <div

@@ -1,0 +1,120 @@
+.container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  color: var(--text-color-secondary);
+}
+
+.title {
+  font-size: 2em;
+  margin-bottom: 20px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.mealNameInput {
+  padding: 12px;
+  border: 1px solid var(--text-color-secondary);
+  border-radius: var(--border-radius-m);
+  font-size: 16px;
+  width: 100%;
+  max-width: 500px;
+  box-sizing: border-box;
+}
+
+.mealNameInput:focus {
+  outline: none;
+  border-color: #000;
+}
+
+.ingredientsSection {
+  margin-top: 20px;
+}
+
+.ingredientsSectionTitle {
+  font-size: 1.5em;
+  margin-bottom: 15px;
+}
+
+.ingredientForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.formGroupRow {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 500px;
+  box-sizing: border-box;
+}
+
+.formGroupRow .formGroup {
+  flex: 1 1 50%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.formGroup {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  box-sizing: border-box;
+}
+
+.formGroup label {
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.formGroup input,
+.formGroup select {
+  padding: 8px 12px;
+  border: 1px solid var(--text-color-secondary);
+  border-radius: var(--border-radius-m);
+  font-size: 14px;
+}
+
+.formGroup input[type="text"],
+.formGroup select,
+.formGroup input[type="number"] {
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.addButton {
+  width: 100%;
+  max-width: 500px;
+  padding: 8px 16px;
+  height: fit-content;
+  box-sizing: border-box;
+}
+
+.ingredientsList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.saveButton {
+  margin-top: 20px;
+  padding: 12px 24px;
+}
+
+.loading {
+  padding: 20px;
+  text-align: center;
+}
+

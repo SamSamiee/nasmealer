@@ -3,6 +3,7 @@ import WeekTable from "../../components/WeekTable";
 import PIP from "../../components/PIP";
 import { SERVER_URL } from "../../config/api.js";
 import { useNavigate } from "react-router-dom";
+import styles from "./NewPlan.module.css";
 
 function NewPlan() {
   const [data, setData] = React.useState([]);
@@ -63,7 +64,7 @@ function NewPlan() {
   }
 
   return (
-    <div>
+    <div className={styles.container}>
       <WeekTable />
     </div>
   );

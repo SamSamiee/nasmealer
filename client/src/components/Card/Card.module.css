@@ -1,14 +1,30 @@
 .header {
-  color: red;
+  color: var(--text-color-secondary);
   font-size: 1.3em;
+  font-weight: 600;
 }
 
 .footer {
-  color: green;
+  color: var(--text-color-secondary);
+
 }
 
 .wrapper {
+  background-color: #ffffff;
+  box-shadow: var(--shadow-elevation-medium);
+  padding: 10px 20px;
   display: flex;
   flex-direction: column;
   border-radius: var(--border-radius-l);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.wrapper:hover {
+  cursor: pointer;
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-elevation-high);
 }
