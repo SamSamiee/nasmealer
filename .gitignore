@@ -2,3 +2,6 @@ client/node_modules/
 server/node_modules/
 server/database.sql
 server/.env
+DEPLOYMENT_QUICK_START.md
+DEPLOYMENT_RECOMMENDED.md
+DEPLOYMENT.md

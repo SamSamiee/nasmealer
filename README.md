@@ -1,5 +1,5 @@
 # Nasmealer
-#### Video Demo:  <URL HERE>
+#### Video Demo:  https://youtu.be/qZK8Le2eigo
 #### Description:
 
 Nasmealer is a web-based meal planning application that helps users organize their weekly meals and automatically generate shopping lists. The application allows users to create meals with specific ingredients, build weekly meal plans, and convert those plans into shopping carts with all necessary ingredients automatically calculated.

@@ -30,3 +30,6 @@ You can use the Monkey Hat font in any component by:
 
 The font is currently applied to the navbar logo. You can add it to any other component by using the CSS variable or font name.
 
+
+
+
