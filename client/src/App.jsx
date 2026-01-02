@@ -11,7 +11,7 @@ import NewPlan from "./pages/NewPlan";
 import NewMeal from "./pages/NewMeal";
 import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
-import Navbar from "./components/navbar";
+import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import UserProvider from "./context/UserProvider";
 function App() {
