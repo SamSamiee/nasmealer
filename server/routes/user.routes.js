@@ -162,10 +162,14 @@ router.post("/login", async (req, res, next) => {
     );
     const sessionId = session.rows[0].id;
     // set a cookie
+    // For cross-origin cookies (Vercel ↔ Railway), we need sameSite: "none" with secure: true
+    // Check if we're in production (Railway) or if CLIENT_ORIGIN is set (deployed environment)
+    const isProduction = process.env.NODE_ENV === "production" || !!process.env.CLIENT_ORIGIN;
     res.cookie("session_id", sessionId, {
       httpOnly: true, // not accessible by JS on frontend
-      secure: process.env.NODE_ENV === "production", // only over HTTPS in prod
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // "none" for cross-origin in prod, "lax" for dev
+      secure: isProduction, // MUST be true when sameSite is "none"
+      sameSite: isProduction ? "none" : "lax", // "none" for cross-origin in prod, "lax" for dev
+      path: "/", // ensure cookie is available for all paths
     });
     // respond with success
     return res.status(201).json({
