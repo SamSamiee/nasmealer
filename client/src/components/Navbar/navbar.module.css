@@ -1,5 +1,6 @@
 .container {
   background-color: var(--text-color-secondary);
+  border-radius: 0 0 10px 10px;
   max-width: 90vw;
   min-width: 90vw;
   margin: 0 auto;

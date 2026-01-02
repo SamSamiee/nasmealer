@@ -25,15 +25,15 @@
   min-width: 200px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border-radius: var(--border-radius-m);
-  padding: 10px 0;
+  padding: 10px 5px;
   z-index: 1000;
   display: flex;
   flex-direction: column;
-
   align-items: flex-start;
 }
 
 .container ul {
+  width: 100%;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -45,6 +45,7 @@
 
 .container a {
   display: block;
+  width: 100%;
   padding: 12px 20px;
   color: #333;
   text-decoration: none;

@@ -27,26 +27,7 @@ function Cart() {
     <p className={styles.loading}>loading</p>
   ) : (
     <div className={styles.container}>
-      {ingredientList.length > 0 && (
-        <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>ingredients</h3>
-          {ingredientList.map((item) => {
-            const { status, id, item_name, quantity, unit, type } = item;
-            return (
-              <CartItem
-                key={id}
-                type={type}
-                quantity={quantity}
-                unit={unit}
-                name={item_name}
-                status={status}
-                onClick={() => toggleStatus(item)}
-              />
-            );
-          })}
-        </div>
-      )}
-      <div className={styles.addItemForm}>
+            <div className={styles.addItemForm}>
         <input
           ref={extraProductInputRef}
           type="text"
@@ -90,6 +71,26 @@ function Cart() {
           +
         </button>
       </div>
+      {ingredientList.length > 0 && (
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>ingredients</h3>
+          {ingredientList.map((item) => {
+            const { status, id, item_name, quantity, unit, type } = item;
+            return (
+              <CartItem
+                key={id}
+                type={type}
+                quantity={quantity}
+                unit={unit}
+                name={item_name}
+                status={status}
+                onClick={() => toggleStatus(item)}
+              />
+            );
+          })}
+        </div>
+      )}
+
       {productList.length > 0 && (
         <div className={styles.section}>
           <h3 className={styles.sectionTitle}>products</h3>

@@ -9,3 +9,16 @@
 .dinner {
     color: green;
 }
+
+select {
+    border: 1px solid var(--text-color-primary);
+}
+
+select:focus{
+    outline: none;
+    border: 2px solid var(--text-color-secondary);
+}
+
+select:active{
+    border:j 2px solid var(--text-color-secondary);
+}
