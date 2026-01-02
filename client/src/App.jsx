@@ -1,4 +1,8 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import {
+   BrowserRouter,
+   Routes,
+   Route,
+} from "react-router-dom";
 import Home from "./pages/Home";
 import Cart from "./pages/Cart";
 import Meals from "./pages/Meals";
@@ -7,86 +11,85 @@ import NewPlan from "./pages/NewPlan";
 import NewMeal from "./pages/NewMeal";
 import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
-import Navbar from "./components/Navbar";
+import Navbar from "./components/navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
-import React from "react";
 import UserProvider from "./context/UserProvider";
 function App() {
-  return (
-    <>
-      <UserProvider>
-        <BrowserRouter>
-          <Navbar />
-          <Routes>
-            <Route
-              path="/login"
-              element={<Login />}
-            />
-            <Route
-              path="/signUp"
-              element={<SignUp />}
-            />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Home />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/cart"
-              element={
-                <ProtectedRoute>
-                  <Cart />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/newmeal"
-              element={
-                <ProtectedRoute>
-                  <NewMeal />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/newmeal/:mealId"
-              element={
-                <ProtectedRoute>
-                  <NewMeal />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/meals"
-              element={
-                <ProtectedRoute>
-                  <Meals />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/plans"
-              element={
-                <ProtectedRoute>
-                  <Plans />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/newplan"
-              element={
-                <ProtectedRoute>
-                  <NewPlan />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </BrowserRouter>
-      </UserProvider>
-    </>
-  );
+   return (
+      <>
+         <UserProvider>
+            <BrowserRouter>
+               <Navbar />
+               <Routes>
+                  <Route
+                     path="/login"
+                     element={<Login />}
+                  />
+                  <Route
+                     path="/signUp"
+                     element={<SignUp />}
+                  />
+                  <Route
+                     path="/"
+                     element={
+                        <ProtectedRoute>
+                           <Home />
+                        </ProtectedRoute>
+                     }
+                  />
+                  <Route
+                     path="/cart"
+                     element={
+                        <ProtectedRoute>
+                           <Cart />
+                        </ProtectedRoute>
+                     }
+                  />
+                  <Route
+                     path="/newmeal"
+                     element={
+                        <ProtectedRoute>
+                           <NewMeal />
+                        </ProtectedRoute>
+                     }
+                  />
+                  <Route
+                     path="/newmeal/:mealId"
+                     element={
+                        <ProtectedRoute>
+                           <NewMeal />
+                        </ProtectedRoute>
+                     }
+                  />
+                  <Route
+                     path="/meals"
+                     element={
+                        <ProtectedRoute>
+                           <Meals />
+                        </ProtectedRoute>
+                     }
+                  />
+                  <Route
+                     path="/plans"
+                     element={
+                        <ProtectedRoute>
+                           <Plans />
+                        </ProtectedRoute>
+                     }
+                  />
+                  <Route
+                     path="/newplan"
+                     element={
+                        <ProtectedRoute>
+                           <NewPlan />
+                        </ProtectedRoute>
+                     }
+                  />
+               </Routes>
+            </BrowserRouter>
+         </UserProvider>
+      </>
+   );
 }
 
 export default App;

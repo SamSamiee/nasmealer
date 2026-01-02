@@ -57,3 +57,4 @@ To verify it works:
 2. Delete all the meals used in that plan
 3. Check that the plan is automatically deleted (it should not appear in your plans list)
 
+
