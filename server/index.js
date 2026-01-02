@@ -19,7 +19,28 @@ const homeRouter = require("./routes/home.routes.js");
 //MIDDLEWARES
 app.use(
   cors({
-    origin: process.env.CLIENT_ORIGIN,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      // Allow CLIENT_ORIGIN if set
+      if (process.env.CLIENT_ORIGIN && origin === process.env.CLIENT_ORIGIN) {
+        return callback(null, true);
+      }
+      
+      // Allow all Vercel URLs (*.vercel.app)
+      if (origin.endsWith('.vercel.app')) {
+        return callback(null, true);
+      }
+      
+      // Allow localhost for local development
+      if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+        return callback(null, true);
+      }
+      
+      // Reject other origins
+      callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   })
 );
