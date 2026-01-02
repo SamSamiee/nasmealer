@@ -165,7 +165,7 @@ router.post("/login", async (req, res, next) => {
     res.cookie("session_id", sessionId, {
       httpOnly: true, // not accessible by JS on frontend
       secure: process.env.NODE_ENV === "production", // only over HTTPS in prod
-      sameSite: "strict", // protects against CSRF
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // "none" for cross-origin in prod, "lax" for dev
     });
     // respond with success
     return res.status(201).json({
