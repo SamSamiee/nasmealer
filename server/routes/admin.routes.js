@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { pool } = require("../db.js");
+const pool = require("../db.js");
 const { isAdmin, authenticate } = require("../middlewares/auth.middleware.js");
 
 //GET ALL INGREDIENTS
