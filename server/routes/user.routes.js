@@ -131,7 +131,10 @@ router.post("/signup", async (req, res, next) => {
 
 // LOGIN ROUTE
 router.post("/login", async (req, res, next) => {
-  const { username, password } = req.body;
+  // Trim whitespace from username/password (common issue on mobile)
+  const username = req.body.username?.trim();
+  const password = req.body.password?.trim();
+  
   // check for requried fields
   if (!username || !password) {
     return res
@@ -139,6 +142,7 @@ router.post("/login", async (req, res, next) => {
       .json({ error: " username and password are required." });
   }
   try {
+    console.log(`Login attempt for username: "${username}" (length: ${username.length}), from origin: ${req.headers.origin || 'no origin'}, user-agent: ${req.headers['user-agent']?.substring(0, 50)}`);
     // check if the user exists
     const user = await pool.query(
       "SELECT username, password, id FROM users WHERE username = $1",
@@ -146,14 +150,17 @@ router.post("/login", async (req, res, next) => {
     );
     // if does not exist, return error
     if (user.rows.length === 0) {
+      console.log(`Login failed: User "${username}" not found`);
       return res.status(400).json({ error: "invalid username or password" });
     }
     //password check - compare hashed password with provided password
     const hashedPassword = user.rows[0].password;
     const isPasswordValid = await bcrypt.compare(password, hashedPassword);
     if (!isPasswordValid) {
+      console.log(`Login failed: Invalid password for user "${username}"`);
       return res.status(400).json({ error: "invalid username or password" });
     }
+    console.log(`Login successful for user "${username}"`);
 
     const userId = user.rows[0].id;
     const session = await pool.query(
@@ -165,12 +172,14 @@ router.post("/login", async (req, res, next) => {
     // For cross-origin cookies (Vercel ↔ Railway), we need sameSite: "none" with secure: true
     // Check if we're in production (Railway) or if CLIENT_ORIGIN is set (deployed environment)
     const isProduction = process.env.NODE_ENV === "production" || !!process.env.CLIENT_ORIGIN;
-    res.cookie("session_id", sessionId, {
+    const cookieOptions = {
       httpOnly: true, // not accessible by JS on frontend
       secure: isProduction, // MUST be true when sameSite is "none"
       sameSite: isProduction ? "none" : "lax", // "none" for cross-origin in prod, "lax" for dev
       path: "/", // ensure cookie is available for all paths
-    });
+    };
+    console.log("Setting cookie with options:", cookieOptions);
+    res.cookie("session_id", sessionId, cookieOptions);
     // respond with success
     return res.status(201).json({
       status: "success",
