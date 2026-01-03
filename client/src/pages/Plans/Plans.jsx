@@ -1,5 +1,5 @@
 import React from "react";
-import { SERVER_URL } from "../../config/api.js";
+import { SERVER_URL, getAuthHeaders } from "../../config/api.js";
 import WeekTable from "../../components/WeekTable";
 import PIP from "../../components/PIP";
 import { useNavigate } from "react-router-dom";
@@ -17,6 +17,7 @@ function Plans() {
       const result = await fetch(`${SERVER_URL}/plans`, {
         method: "GET",
         credentials: "include",
+        headers: getAuthHeaders(),
       });
 
       if (!result.ok) {
@@ -50,7 +51,7 @@ function Plans() {
       const result = await fetch(`${SERVER_URL}/plans`, {
         method: "DELETE",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ planId }),
       });
 

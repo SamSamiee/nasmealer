@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import { SERVER_URL } from "../config/api.js";
+import { SERVER_URL, getAuthHeaders } from "../config/api.js";
 import {useNavigate} from "react-router-dom";
 
 export function useNewMeal(initial) {
@@ -19,6 +19,7 @@ export function useNewMeal(initial) {
       const result = await fetch(`${SERVER_URL}/meals/${mealId}`, {
         method: "GET",
         credentials: "include",
+        headers: getAuthHeaders(),
       });
       if (result.ok) {
         setData(json);
@@ -75,9 +76,7 @@ export function useNewMeal(initial) {
       const res = await fetch(`${SERVER_URL}/meals`, {
         method: "POST",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           name: mealName,
           ingredients: list,

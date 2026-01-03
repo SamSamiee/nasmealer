@@ -1,5 +1,5 @@
 import React from "react";
-import { SERVER_URL } from "../config/api.js";
+import { SERVER_URL, getAuthHeaders } from "../config/api.js";
 
 export function useCart() {
   const [loading, setLoading] = React.useState(false);
@@ -20,6 +20,7 @@ export function useCart() {
       const result = await fetch(`${SERVER_URL}/cart`, {
         method: "GET",
         credentials: "include",
+        headers: getAuthHeaders(),
       });
       if (!result.ok) {
         throw new Error("failed fetching cart items");
@@ -92,7 +93,7 @@ export function useCart() {
       const result = await fetch(`${SERVER_URL}/cart`, {
         method: "PATCH",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           id: id,
           status: newStatus,
@@ -167,7 +168,7 @@ export function useCart() {
       const result = await fetch(`${SERVER_URL}/cart`, {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           product: {
             name: savedName,  // Server expects 'name'
@@ -212,6 +213,7 @@ export function useCart() {
       const result = await fetch(`${SERVER_URL}/cart`, {
         method: "DELETE",
         credentials: "include",
+        headers: getAuthHeaders(),
       });
 
       if (!result.ok) {

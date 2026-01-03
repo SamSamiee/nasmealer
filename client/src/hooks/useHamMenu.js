@@ -1,6 +1,6 @@
 import React from "react";
 import { UserContext } from "../context/UserProvider";
-import { SERVER_URL } from "../config/api.js";
+import { SERVER_URL, getAuthHeaders } from "../config/api.js";
 
 export function useHamMenu(loading, setLoading) {
   const [visible, setVisible] = React.useState(false);
@@ -39,9 +39,7 @@ export function useHamMenu(loading, setLoading) {
       const result = await fetch(`${SERVER_URL}/user/logout`, {
         method: "POST",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getAuthHeaders(),
       });
       if (result.ok) {
         setLoading(false);

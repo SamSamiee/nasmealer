@@ -172,14 +172,23 @@ router.post("/login", async (req, res, next) => {
     // For cross-origin cookies (Vercel ↔ Railway), we need sameSite: "none" with secure: true
     // Check if we're in production (Railway) or if CLIENT_ORIGIN is set (deployed environment)
     const isProduction = process.env.NODE_ENV === "production" || !!process.env.CLIENT_ORIGIN;
+    const userAgent = req.headers["user-agent"] || "";
+    const isSafari = /iPhone|iPad|iPod|Safari/i.test(userAgent);
+    
     const cookieOptions = {
       httpOnly: true, // not accessible by JS on frontend
       secure: isProduction, // MUST be true when sameSite is "none"
       sameSite: isProduction ? "none" : "lax", // "none" for cross-origin in prod, "lax" for dev
       path: "/", // ensure cookie is available for all paths
+      // Note: Safari on iOS blocks third-party cookies even with sameSite: 'none'
+      // This is a known limitation - users may need to enable cookies in Safari settings
     };
-    console.log("Setting cookie with options:", cookieOptions);
+    
+    console.log(`Setting cookie for ${isSafari ? 'Safari' : 'non-Safari'} browser with options:`, cookieOptions);
     res.cookie("session_id", sessionId, cookieOptions);
+    
+    // Also set it as a header for debugging (will be removed in production)
+    res.setHeader("X-Set-Cookie-Debug", `session_id=${sessionId}; HttpOnly; Secure; SameSite=None; Path=/`);
     // respond with success
     return res.status(201).json({
       status: "success",

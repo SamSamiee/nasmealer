@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { SERVER_URL } from "../config/api.js";
+import { SERVER_URL, getAuthHeaders } from "../config/api.js";
 
 // Function to create a fresh copy of the plan template
 function getEmptyPlan() {
@@ -103,6 +103,7 @@ export function useWeekTable(mainPlan, tableName) {
         const result = await fetch(`${SERVER_URL}/meals`, {
           method: "GET",
           credentials: "include",
+          headers: getAuthHeaders(),
         });
 
         if (!result.ok) {
@@ -125,6 +126,7 @@ export function useWeekTable(mainPlan, tableName) {
         const result = await fetch(`${SERVER_URL}/plans`, {
           method: "GET",
           credentials: "include",
+          headers: getAuthHeaders(),
         });
 
         if (!result.ok) {
@@ -191,7 +193,7 @@ export function useWeekTable(mainPlan, tableName) {
       const result = await fetch(`${SERVER_URL}/plans`, {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(),
         body: JSON.stringify(requestBody),
       });
 
@@ -231,7 +233,7 @@ export function useWeekTable(mainPlan, tableName) {
       const result = await fetch(`${SERVER_URL}/cart/meals`, {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           meals: idList,
         }),

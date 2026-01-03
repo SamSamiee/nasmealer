@@ -1,7 +1,7 @@
 import React from "react";
 import WeekTable from "../../components/WeekTable";
 import PIP from "../../components/PIP";
-import { SERVER_URL } from "../../config/api.js";
+import { SERVER_URL, getAuthHeaders } from "../../config/api.js";
 import { useNavigate } from "react-router-dom";
 import styles from "./NewPlan.module.css";
 
@@ -17,6 +17,7 @@ function NewPlan() {
       const result = await fetch(`${SERVER_URL}/meals`, {
         method: "GET",
         credentials: "include",
+        headers: getAuthHeaders(),
       });
 
       if (!result.ok) {

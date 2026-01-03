@@ -1,4 +1,4 @@
-import { SERVER_URL } from "../config/api.js";
+import { SERVER_URL, getAuthHeaders } from "../config/api.js";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -14,6 +14,7 @@ export function useMeals() {
          const result = await fetch(`${SERVER_URL}/meals`, {
             method: "GET",
             credentials: "include",
+            headers: getAuthHeaders(),
          });
          const json = await result.json();
          if (!result.ok) {
@@ -49,6 +50,7 @@ export function useMeals() {
             {
                method: "DELETE",
                credentials: "include",
+               headers: getAuthHeaders(),
             }
          );
 

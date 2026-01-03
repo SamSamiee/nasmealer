@@ -1,5 +1,5 @@
 import React from "react";
-import { SERVER_URL } from "../../config/api.js";
+import { SERVER_URL, getAuthHeaders } from "../../config/api.js";
 import Card from "../../components/Card";
 import {Navigate} from "react-router-dom"
 import styles from "./Home.module.css";
@@ -14,6 +14,7 @@ function Home() {
         const response = await fetch(`${SERVER_URL}/user`, {
           method: "GET",
           credentials: "include",
+          headers: getAuthHeaders(),
         });
         if (!response.ok) {
           throw new Error("request failed");
