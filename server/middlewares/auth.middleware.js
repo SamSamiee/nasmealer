@@ -1,9 +1,10 @@
 const pool = require("../db.js");
 
 const authenticate = async function (req, res, next) {
-  const sessionId = req.cookies.session_id;
+  // Try cookie first, then fallback to header (for Safari which blocks third-party cookies)
+  let sessionId = req.cookies.session_id || req.headers["x-session-id"];
   if (!sessionId) {
-    console.log("Auth failed: No session_id cookie found. Cookies received:", req.cookies);
+    console.log("Auth failed: No session_id cookie or header found. Cookies received:", req.cookies);
     return res.status(401).json({ error: "you are not logged in" });
   }
   try {

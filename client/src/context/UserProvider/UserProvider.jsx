@@ -1,5 +1,5 @@
 import React from "react";
-import { SERVER_URL } from "../../config/api.js";
+import { SERVER_URL, getAuthHeaders } from "../../config/api.js";
 export const UserContext = React.createContext();
 
 function UserProvider({ children }) {
@@ -13,6 +13,7 @@ function UserProvider({ children }) {
       const response = await fetch(SERVER_URL, {
         method: "GET",
         credentials: "include",
+        headers: getAuthHeaders(),
       });
 
       if (response.ok) {
@@ -38,6 +39,7 @@ function UserProvider({ children }) {
   function logUserOut() {
     setIsAuthenticated(false);
     setUser(null);
+    localStorage.removeItem("sessionId"); // Clear sessionId from localStorage
   }
 
   return (

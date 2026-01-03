@@ -36,6 +36,10 @@ function Login() {
       });
       const json = await result.json();
       if (result.ok) {
+        // Store sessionId in localStorage as fallback for Safari (which blocks third-party cookies)
+        if (json.sessionId) {
+          localStorage.setItem("sessionId", json.sessionId);
+        }
         setStatus("success");
         getUser();
       } else {
