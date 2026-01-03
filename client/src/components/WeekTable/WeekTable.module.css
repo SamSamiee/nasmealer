@@ -1,6 +1,5 @@
 .container {
    padding: 10px;
-   /* background-color: blue; */
    margin-bottom: 30px;
    display: flex;
    flex-direction: column;
@@ -25,12 +24,11 @@
    padding: 10px;
    border: none;
    border-radius: var(--border-radius-l);
-   font-size: 1em;
+   font-size: 0.7em;
    font-weight: bold;
    box-shadow: var(--shadow-elevation-medium);
    color: var(--text-color-secondary);
-   /* width: 100%; */
-   /* max-width: 400px; */
+   max-width: 400px;
 }
 
 .titleInput::placeholder {
@@ -60,7 +58,6 @@
    padding-bottom: 10px;
    color: var(--text-color-secondary);
    border-radius: var(--border-radius-l);
-   border-bottom: 2px solid var(--text-color-secondary);
    text-align: center;
    font-size: 2em;
 }
