@@ -6,8 +6,10 @@ const pool = new Pool(
    process.env.DATABASE_URL
       ? {
            connectionString: process.env.DATABASE_URL,
-           // Railway uses SSL, but we'll allow self-signed for local testing
-           ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
+           // Railway always requires SSL - use it when DATABASE_URL is present (Railway) or in production
+           ssl: process.env.NODE_ENV === "production" || process.env.DATABASE_URL.includes("railway.app") 
+              ? { rejectUnauthorized: false } 
+              : false,
         }
       : {
            user: process.env.DB_USER,

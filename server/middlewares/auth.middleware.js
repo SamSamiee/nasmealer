@@ -3,6 +3,7 @@ const pool = require("../db.js");
 const authenticate = async function (req, res, next) {
   const sessionId = req.cookies.session_id;
   if (!sessionId) {
+    console.log("Auth failed: No session_id cookie found. Cookies received:", req.cookies);
     return res.status(401).json({ error: "you are not logged in" });
   }
   try {
@@ -21,11 +22,13 @@ const authenticate = async function (req, res, next) {
     );
 
     if (data.rows.length === 0) {
+      console.log("Auth failed: Session not found in database. SessionId:", sessionId);
       return res.status(401).json({ error: "you are not logged in" });
     }
     req.user = data.rows[0];
     next();
   } catch (err) {
+    console.error("Auth error - DB query failed:", err.message);
     return res
       .status(500)
       .json({ error: err.message, message: "error in auth middleware" });
