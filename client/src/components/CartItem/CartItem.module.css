@@ -64,4 +64,5 @@
 .button{
   background-color: transparent;
   box-shadow: none;
+  padding: 6px;
 }
