@@ -9,7 +9,7 @@ const {
 router.get("/", authenticate, async (req, res, next) => {
    try {
       const result = await pool.query(
-         "SELECT mi.quantity AS quantity, mi.unit AS unit, m.id AS meal_id, m.name AS meal_name, mi.ingredient_id AS ingredient_id, i.name AS ingredient_name FROM meals m LEFT JOIN meal_ingredients mi ON m.id = mi.meal_id LEFT JOIN ingredients i ON mi.ingredient_id = i.id WHERE m.created_by = $1 ORDER BY m.created_at DESC, m.name",
+         "SELECT mi.quantity AS quantity, mi.unit AS unit, m.id AS meal_id, m.name AS meal_name, mi.ingredient_id AS ingredient_id, i.name AS ingredient_name FROM meals m LEFT JOIN meal_ingredients mi ON m.id = mi.meal_id LEFT JOIN ingredients i ON mi.ingredient_id = i.id WHERE m.created_by = $1 ORDER BY m.name ASC",
          [req.user.userId]
       );
 
