@@ -48,7 +48,7 @@ export function useNewMeal(initial) {
   const [mealName, setMealName] = React.useState(initialMeal?.mealName || "");
   const [name, setName] = React.useState(initialMeal?.name || "");
   const [unit, setUnit] = React.useState(initialMeal?.unit || "gr");
-  const [quantity, setQuantity] = React.useState(initialMeal?.quantity || 1);
+  const [quantity, setQuantity] = React.useState(initialMeal?.quantity || "");
   const [list, setList] = React.useState(initialMeal?.list || []);
 
   // update the form fields when ever the initial meal arrives (in case of fetching)
@@ -66,7 +66,7 @@ export function useNewMeal(initial) {
   // reset all the form fields
   function handleReset() {
     setName("");
-    setQuantity(1);
+    setQuantity("");
   }
 
   // handle submit
