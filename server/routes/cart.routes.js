@@ -171,7 +171,7 @@ router.post("/", authenticate, async (req, res, next) => {
     const {
       rows: [{ id: productId }],
     } = await client.query(
-      "INSERT INTO products (name, created_by) VALUES ($1, $2) ON CONFLICT ON CONSTRAINT unique_name_per_user DO UPDATE SET name = EXCLUDED.name RETURNING id",
+      "INSERT INTO products (name, created_by) VALUES ($1, $2) ON CONFLICT ON CONSTRAINT (name, created_by) DO UPDATE SET name = EXCLUDED.name RETURNING id",
       [name, userId]
     );
 
