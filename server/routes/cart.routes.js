@@ -179,16 +179,24 @@ router.post("/", authenticate, async (req, res, next) => {
       });
    }
 
-   const { name, quantity, unit } = product;
-   if (!name) {
-      return res
-         .status(400)
-         .json({
-            status: "failed",
-            message: "product name is required.",
-         });
+   const { initialName, quantity, unit } = product;
+
+   if (
+      !initialName ||
+      typeof initialName !== "string" ||
+      !initialName.trim()
+   ) {
+      return res.status(400).json({
+         status: "failed",
+         message: "product name is required.",
+      });
    }
 
+   // capitalize product name
+   let name = initialName.trim().toLowerCase();
+   name = name.charAt(0).toUpperCase() + name.slice(1);
+
+   // start transaction
    let client;
 
    try {
@@ -258,21 +266,17 @@ router.patch("/", authenticate, async (req, res, next) => {
    const status = req.body.status;
 
    if (status !== "pending" && status !== "done") {
-      return res
-         .status(400)
-         .json({
-            status: "failed",
-            message: "invalid status",
-         });
+      return res.status(400).json({
+         status: "failed",
+         message: "invalid status",
+      });
    }
 
    if (!id) {
-      return res
-         .status(400)
-         .json({
-            status: "failed",
-            message: "invalid item id",
-         });
+      return res.status(400).json({
+         status: "failed",
+         message: "invalid item id",
+      });
    }
 
    try {
@@ -286,19 +290,15 @@ WHERE ci.id = $2
          [status, id, userId]
       );
       if (query.rowCount === 0) {
-         return res
-            .status(400)
-            .json({
-               status: "failed",
-               message: "not allowed to update this item",
-            });
-      }
-      return res
-         .status(200)
-         .json({
-            status: "success",
-            message: "cart item updated successfully",
+         return res.status(400).json({
+            status: "failed",
+            message: "not allowed to update this item",
          });
+      }
+      return res.status(200).json({
+         status: "success",
+         message: "cart item updated successfully",
+      });
    } catch (err) {
       next(err);
    }
@@ -312,12 +312,10 @@ router.delete("/", authenticate, async (req, res, next) => {
          "DELETE FROM cart_items ci USING carts c WHERE ci.cart_id = c.id AND c.created_by = $1 AND ci.status = 'done'",
          [userId]
       );
-      return res
-         .status(200)
-         .json({
-            status: "success",
-            message: "cart items deleted successfully",
-         });
+      return res.status(200).json({
+         status: "success",
+         message: "cart items deleted successfully",
+      });
    } catch (err) {
       next(err);
    }
