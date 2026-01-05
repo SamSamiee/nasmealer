@@ -28,7 +28,7 @@ router.get("/", authenticate, async (req, res, next) => {
       LEFT JOIN products ON products.id = ci.product_id
       LEFT JOIN ingredients ON ingredients.id = ci.ingredient_id
       WHERE c.created_by = $1
-      ORDER BY ci.created_at DESC
+      ORDER BY item_name DESC
     `,
       [userId]
     );
