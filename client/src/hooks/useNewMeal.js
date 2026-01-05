@@ -4,7 +4,7 @@ import { SERVER_URL, getAuthHeaders } from "../config/api.js";
 import {useNavigate} from "react-router-dom";
 
 export function useNewMeal(initial) {
-  const units = ["gr", "kg", "pieces", "ml", "liters"];
+  const units = ["gr", "kg", "pieces", "ml", "liters", "any"];
 
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = React.useState(false);
