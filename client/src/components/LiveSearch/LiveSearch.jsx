@@ -14,6 +14,7 @@ function LiveSearch({
       <div className={styles.wrapper}>
          <div className={styles.inputGroup}>
             <input
+              className={styles.input}
                type="text"
                value={input}
                onChange={(e) => {

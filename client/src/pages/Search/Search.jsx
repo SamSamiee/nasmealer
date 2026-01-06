@@ -14,8 +14,8 @@ function Search() {
    React.useEffect(() => {
       async function searchUsers() {
          try {
-            setState("loading");
             if (!input) return;
+            setState("loading");
             const result = await fetch(
                `${SERVER_URL}/friend/search?username=${input}`,
                {
