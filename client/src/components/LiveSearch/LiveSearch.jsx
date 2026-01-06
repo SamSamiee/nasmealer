@@ -16,6 +16,7 @@ function LiveSearch({
             <input
               className={styles.input}
                type="text"
+               placeholder="search a username"
                value={input}
                onChange={(e) => {
                   setInput(e.target.value);
