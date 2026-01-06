@@ -98,7 +98,7 @@ router.post("/", authenticate, async (req, res, next) => {
                `
                 UPDATE friendships
                 SET 
-                    status='pending'
+                    status='pending',
                     updated_at = CURRENT_TIMESTAMP
                 WHERE user_id=$1 AND 
                 friend_id=$2
@@ -138,8 +138,55 @@ router.post("/", authenticate, async (req, res, next) => {
 });
 
 // REMOVE A FRIEND
+router.delete("/", authenticate, async (req, res, next) => {
+   const userAId = req.user.userId;
+   const userBId = req.body?.target_user_id;
 
-// GET ALL PENDING REQUESTS
+   if (!userBId) {
+      return res
+         .status(400)
+         .json({ error: "invalid target_user_id" });
+   }
+
+   if (userAId === userBId) {
+      return res
+         .status(400)
+         .json({ error: "can not remove yourself" });
+   }
+
+   const { userId, friendId } = normalizeUsers(
+      userAId,
+      userBId
+   );
+
+   try {
+      const result = await pool.query(
+         `
+        DELETE FROM friendships
+        WHERE user_id = $1 AND friend_id = $2
+        RETURNING id
+        `,
+         [userId, friendId]
+      );
+
+      if (result.rows.length === 0) {
+         return res
+            .status(404)
+            .json({ error: "friendship not found" });
+      }
+
+      const {
+         rows: [{ id }],
+      } = result;
+
+      return res.status(200).json({
+         message: "friend successfully removed",
+         id,
+      });
+   } catch (err) {
+      next(err);
+   }
+});
 
 // GET A FRIEND
 
