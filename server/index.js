@@ -17,6 +17,7 @@ const planRouter = require("./routes/plans.routes.js");
 const cartRouter = require("./routes/cart.routes.js");
 const adminRouter = require("./routes/admin.routes.js");
 const homeRouter = require("./routes/home.routes.js");
+const friendRouter = require("./routes/friends.routes.js");
 
 //MIDDLEWARES
 app.use(
@@ -77,6 +78,7 @@ app.use("/ingredients", ingredientRouter);
 app.use("/plans", planRouter);
 app.use("/cart", cartRouter);
 app.use("/admin", adminRouter);
+app.use("/friend", friendRouter);
 
 //ERROR HANDLER
 app.use(errorHandler);
