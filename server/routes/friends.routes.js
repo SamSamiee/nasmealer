@@ -425,4 +425,44 @@ router.get(
    }
 );
 
+// FIND A USER
+router.get(
+   "/search",
+   authenticate,
+   async (req, res, next) => {
+      const targetUsername =
+         req.query.username || req.query.q;
+
+      if (!targetUsername) {
+         return res.status(400).json({
+            error: "Username parameter is required",
+         });
+      }
+
+      try {
+         const result = await pool.query(
+            `
+         SELECT id, username, name
+         FROM users
+         WHERE username ILIKE $1
+         LIMIT 20
+         `,
+            [`%${targetUsername}%`]
+         );
+
+         if (result.rows.length === 0) {
+            return res.status(200).json({
+               users: [],
+               message: "No users found",
+            });
+         }
+
+         return res.status(200).json({
+            users: result.rows,
+         });
+      } catch (err) {
+         next(err);
+      }
+   }
+);
 module.exports = router;
