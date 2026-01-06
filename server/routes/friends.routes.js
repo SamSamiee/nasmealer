@@ -6,6 +6,14 @@ const pool = require("../db.js");
 // in friendship table request id should always be smaller than the friend_id
 // ============================================================================
 
+function normalizeUsers(u1, u2) {
+   const u1 = String(u1);
+   const u2 = String(u2);
+   const userId = u1 < u2 ? u1 : u2;
+   const friendId = u1 < u2 ? u2 : u1;
+   return { userId, friendId };
+}
+
 const {
    authenticate,
 } = require("../middlewares/auth.middleware.js");
@@ -31,8 +39,10 @@ router.post("/", authenticate, async (req, res, next) => {
    }
 
    // normalize requstId and friend_id
-   const userId = userAId < userBId ? userAId : userBId;
-   const friendId = userAId < userBId ? userBId : userAId;
+   const { userId, friendId } = normalizeUsers(
+      userAId,
+      userBId
+   );
 
    try {
       // Check if friendship already exists
