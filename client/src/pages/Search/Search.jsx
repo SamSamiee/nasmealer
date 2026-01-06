@@ -1,6 +1,6 @@
 import React from "react";
 import LiveSearch from "../../components/LiveSearch";
-import PIP from "../../components/PIP"
+import PIP from "../../components/PIP";
 import {
    SERVER_URL,
    getAuthHeaders,
@@ -17,7 +17,7 @@ function Search() {
             setState("loading");
             if (!input) return;
             const result = await fetch(
-               `${SERVER_URL}/friends/search?username=${input}`,
+               `${SERVER_URL}/friend/search?username=${input}`,
                {
                   method: "GET",
                   credentials: "include",
@@ -28,19 +28,22 @@ function Search() {
             const json = await result.json();
             const { users } = json;
             setList(users);
-         } catch (err) {
-            return (
-               <PIP
-                  header=":("
-                  footer="something went wrong"
-               />
-            );
-         } finally {
             setState("idle");
+         } catch (err) {
+            setState("error");
          }
       }
       searchUsers();
    }, [input]);
+
+   if (state === "error") {
+      return (
+         <PIP
+            header=":("
+            footer="something went wrong"
+         />
+      );
+   }
 
    return (
       <div>

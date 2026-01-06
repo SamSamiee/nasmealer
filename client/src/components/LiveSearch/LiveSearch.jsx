@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./LiveSearch.module.css";
 
-import UserCard from "../UserCard"
+import UserCard from "../UserCard";
 
 function LiveSearch({
    state,
@@ -29,9 +29,10 @@ function LiveSearch({
                <p>loading</p>
             ) : input.trim() === "" ? (
                <div></div>
-            ) : list.length > 0 ? (
+            ) : list?.length > 0 ? (
                list.map((i) => (
                   <UserCard
+                     key={i.id}
                      name={i.name}
                      username={i.username}
                   />

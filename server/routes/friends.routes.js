@@ -27,6 +27,47 @@ const {
    authenticate,
 } = require("../middlewares/auth.middleware.js");
 
+// FIND A USER
+router.get(
+   "/search",
+   authenticate,
+   async (req, res, next) => {
+      const targetUsername =
+         req.query.username || req.query.q;
+
+      if (!targetUsername) {
+         return res.status(400).json({
+            error: "Username parameter is required",
+         });
+      }
+
+      try {
+         const result = await pool.query(
+            `
+         SELECT id, username, name
+         FROM users
+         WHERE username ILIKE $1
+         LIMIT 20
+         `,
+            [`%${targetUsername}%`]
+         );
+
+         if (result.rows.length === 0) {
+            return res.status(200).json({
+               users: [],
+               message: "No users found",
+            });
+         }
+
+         return res.status(200).json({
+            users: result.rows,
+         });
+      } catch (err) {
+         next(err);
+      }
+   }
+);
+
 //GET ALL FRIENDS OF A USER
 router.get("/", authenticate, async (req, res, next) => {
    const userId = req.user.userId;
@@ -104,8 +145,7 @@ router.post("/", authenticate, async (req, res, next) => {
             });
          } else if (existingStatus === "rejected") {
             const result = await pool.query(
-               `
-                UPDATE friendships
+               `UPDATE friendships
                 SET 
                     status='pending',
                     updated_at = CURRENT_TIMESTAMP
@@ -425,44 +465,4 @@ router.get(
    }
 );
 
-// FIND A USER
-router.get(
-   "/search",
-   authenticate,
-   async (req, res, next) => {
-      const targetUsername =
-         req.query.username || req.query.q;
-
-      if (!targetUsername) {
-         return res.status(400).json({
-            error: "Username parameter is required",
-         });
-      }
-
-      try {
-         const result = await pool.query(
-            `
-         SELECT id, username, name
-         FROM users
-         WHERE username ILIKE $1
-         LIMIT 20
-         `,
-            [`%${targetUsername}%`]
-         );
-
-         if (result.rows.length === 0) {
-            return res.status(200).json({
-               users: [],
-               message: "No users found",
-            });
-         }
-
-         return res.status(200).json({
-            users: result.rows,
-         });
-      } catch (err) {
-         next(err);
-      }
-   }
-);
 module.exports = router;

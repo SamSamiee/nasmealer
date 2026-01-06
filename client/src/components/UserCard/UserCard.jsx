@@ -4,8 +4,8 @@ import styles from "./UserCard.module.css";
 function UserCard({ username, name }) {
    return (
       <div className={styles.wrapper}>
-         <p className={styles.username}>username</p>
-         <p className={styles.name}>name</p>
+         <p className={styles.username}>{username}</p>
+         <p className={styles.name}>{name}</p>
       </div>
    );
 }
