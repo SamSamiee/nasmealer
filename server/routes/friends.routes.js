@@ -223,7 +223,8 @@ router.get(
             `
             SELECT
                 u.name AS friend_name, 
-                u.id AS friend_id 
+                u.id AS friend_id,
+                f.status 
             FROM friendships f
             JOIN users u ON
                 (f.user_id = $1 AND f.friend_id = u.id)
@@ -231,23 +232,50 @@ router.get(
                 (f.friend_id = $1 AND f.user_id = u.id)
             WHERE
                 (f.user_id = $1 OR f.friend_id = $1)
-                AND f.status = 'accepted'
                 AND u.id = $2
             `,
             [userId, userBId] // Check normalized pair, but verify userBId matches
          );
 
-         // Validate friendQuery
+         // If no friendship record exists, check if user exists
          if (friendQuery.rows.length === 0) {
-            return res.status(404).json({
-               error: "Friend not found or not accepted",
+            const result = await pool.query(
+               `
+               SELECT name, username, id
+               FROM users
+               WHERE id = $1
+               `,
+               [userBId]
+            );
+
+            // If user doesn't exist, return 404
+            if (result.rows.length === 0) {
+               return res
+                  .status(404)
+                  .json({ error: "User not found" });
+            }
+
+            // User exists but no friendship - return basic info
+            const { name, username, id } = result.rows[0];
+            return res.status(200).json({
+               name,
+               username,
+               id,
             });
          }
 
-         // Get friend info
+         // Friendship exists - get the data
          const {
-            rows: [{ friend_name, friend_id }],
+            rows: [{ friend_name, friend_id, status }],
          } = friendQuery;
+
+         // If not accepted friends, return only basic info
+         if (status !== "accepted") {
+            return res.status(200).json({
+               friend_name,
+               friend_id,
+            });
+         }
 
          // Get all meals of friend (only if public)
          const mealQuery = await pool.query(
@@ -396,7 +424,5 @@ router.get(
       }
    }
 );
-
-
 
 module.exports = router;
