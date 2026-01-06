@@ -9,6 +9,7 @@ const links = [
   { name: "plans", to: "/plans" },
   { name: "cart", to: "/cart" },
   { name: "meals", to: "/meals" },
+  {name: "search", to: "/search"}
 ];
 
 function HamMenu({ children }) {

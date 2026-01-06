@@ -11,6 +11,7 @@ import NewPlan from "./pages/NewPlan";
 import NewMeal from "./pages/NewMeal";
 import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
+import Search from "./pages/Search";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import UserProvider from "./context/UserProvider";
@@ -74,6 +75,14 @@ function App() {
                      element={
                         <ProtectedRoute>
                            <Plans />
+                        </ProtectedRoute>
+                     }
+                  />
+                  <Route
+                     path="/search"
+                     element={
+                        <ProtectedRoute>
+                           <Search />
                         </ProtectedRoute>
                      }
                   />
