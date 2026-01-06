@@ -8,4 +8,9 @@
 
 .input {
    width: 240px;
+   padding: 0 1px;
+   height: 40px;
+   border-radius: var(--border-radius-l);
+   border: 1px solid var(--text-color-secondary);
+   font-size: 1.3em;
 }
