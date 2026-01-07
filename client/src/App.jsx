@@ -12,6 +12,7 @@ import NewMeal from "./pages/NewMeal";
 import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
 import Search from "./pages/Search";
+import UserPage from "./pages/UserPage"
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import UserProvider from "./context/UserProvider";
@@ -91,6 +92,14 @@ function App() {
                      element={
                         <ProtectedRoute>
                            <NewPlan />
+                        </ProtectedRoute>
+                     }
+                  />
+                  <Route
+                     path="/user/:userId/:username/:name"
+                     element={
+                        <ProtectedRoute>
+                           <UserPage />
                         </ProtectedRoute>
                      }
                   />

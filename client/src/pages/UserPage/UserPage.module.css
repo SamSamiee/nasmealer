@@ -1,0 +1,45 @@
+.wrapper {
+   width: 80vw;
+   display: flex;
+   flex-direction: column;
+   justify-content: flex-start;
+}
+
+.header {
+   height: 100px;
+   display: flex;
+   justify-content: flex-start;
+   align-items: flex-start;
+   position: relative;
+}
+
+.details {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   gap: 20px;
+}
+
+.picture {
+   height: 80px;
+}
+
+.name {
+   margin: 0;
+   padding: 0;
+}
+
+.center {
+   left: 0;
+   display: flex;
+   flex-direction: column;
+   gap: 15px;
+   position: absolute;
+   left: 50%;
+   transform: translate(-50%);
+}
+
+.numbers {
+   display: flex;
+   gap: 20px;
+}

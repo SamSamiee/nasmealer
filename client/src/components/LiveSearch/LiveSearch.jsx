@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./LiveSearch.module.css";
-
 import UserCard from "../UserCard";
+import { useNavigate } from "react-router-dom";
 
 function LiveSearch({
    state,
@@ -10,11 +10,13 @@ function LiveSearch({
    input,
    setInput,
 }) {
+   const navigate = useNavigate();
+
    return (
       <div className={styles.wrapper}>
          <div className={styles.inputGroup}>
             <input
-              className={styles.input}
+               className={styles.input}
                type="text"
                placeholder="search a username"
                value={input}
@@ -37,6 +39,11 @@ function LiveSearch({
                      key={i.id}
                      name={i.name}
                      username={i.username}
+                     onClick={() =>
+                        navigate(
+                           `/user/${i.id}/${i.username}/${i.name}`
+                        )
+                     }
                   />
                ))
             ) : (
