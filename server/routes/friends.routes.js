@@ -301,6 +301,7 @@ router.get(
                name,
                username,
                id,
+               status: "rejected"
             });
          }
 
@@ -314,6 +315,7 @@ router.get(
             return res.status(200).json({
                friend_name,
                friend_id,
+               status
             });
          }
 
@@ -458,6 +460,7 @@ router.get(
             friend_name,
             friend_meals,
             friend_plans,
+            status
          });
       } catch (err) {
          next(err);
