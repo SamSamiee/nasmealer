@@ -1,9 +1,12 @@
-import { SERVER_URL, getAuthHeaders } from "../config/api.js";
+import {
+   SERVER_URL,
+   getAuthHeaders,
+} from "../config/api.js";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-export function useMeals() {
-   const [mealsList, setMealsList] = React.useState([]);
+export function useMeals(allMeals) {
+   const [mealsList, setMealsList] = React.useState(allMeals || []);
    const [isLoading, setIsLoading] = React.useState(false);
    const navigate = useNavigate();
 
@@ -30,8 +33,16 @@ export function useMeals() {
    }
 
    React.useEffect(() => {
-      getAllMeals();
+      if(allMeals === undefined){
+         getAllMeals()
+      }
    }, []);
+
+   React.useEffect(() => {
+      if (Array.isArray(allMeals) && allMeals.length > 0) {
+         setMealsList(allMeals);
+      }
+   }, [allMeals]);
 
    // DELETE MEAL WITH OPTIMISTIC RENDERING
    async function handleDeleteMeal(mealId) {

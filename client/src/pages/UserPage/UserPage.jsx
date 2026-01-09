@@ -8,6 +8,8 @@ import styles from "./UserPage.module.css";
 import PIP from "../../components/PIP";
 import Picture from "../../components/Picture";
 import Card from "../../components/Card";
+import Meals from "../../pages/Meals";
+import { useNavigate } from "react-router-dom";
 
 function UserPage() {
    const { userId, username, name } = useParams();
@@ -15,6 +17,7 @@ function UserPage() {
    const [meals, setMeals] = React.useState([]);
    const [plans, setPlans] = React.useState([]);
    const [status, setStatus] = React.useState("");
+   const [showMeals, setShowMeals] = React.useState(false);
 
    React.useEffect(() => {
       async function getUser() {
@@ -54,6 +57,10 @@ function UserPage() {
       );
    }
 
+   if (showMeals) {
+      return <Meals allMeals={meals} />;
+   }
+
    return (
       <div className={styles.wrapper}>
          <div className={styles.header}>
@@ -81,6 +88,7 @@ function UserPage() {
                   <Card
                      header="meals"
                      footer="2"
+                     onClick={() => setShowMeals(true)}
                   />
                </div>
                <button
