@@ -58,7 +58,13 @@ function UserPage() {
    }
 
    if (showMeals) {
-      return <Meals allMeals={meals} />;
+      return (
+         <Meals
+            allMeals={meals}
+            friend={true}
+            backButton={setShowMeals}
+         />
+      );
    }
 
    return (

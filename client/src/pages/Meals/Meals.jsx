@@ -4,7 +4,7 @@ import PIP from "../../components/PIP";
 import { IoAddSharp } from "react-icons/io5";
 import styles from "./Meals.module.css";
 
-function Meals({ allMeals, friend = false }) {
+function Meals({ allMeals, friend = false, backButton }) {
    const {
       isLoading,
       mealsList,
@@ -22,13 +22,21 @@ function Meals({ allMeals, friend = false }) {
          {mealsList.length > 0 ? (
             <div>
                <div className={styles.header}>
-                  {!friend && (
+                  {!friend ? (
                      <button
                         className={styles.newMealButton}
                         onClick={() =>
                            navigate("/newmeal")
                         }>
                         <IoAddSharp size={20} />
+                     </button>
+                  ) : (
+                     <button
+                        className={styles.newMealButton}
+                        onClick={() =>
+                           backButton((e) => !e)
+                        }>
+                        back
                      </button>
                   )}
                </div>
@@ -48,6 +56,15 @@ function Meals({ allMeals, friend = false }) {
                   )}
                </div>
             </div>
+         ) : friend ? (
+            <PIP
+               header=":o"
+               footer="they don't have any meals yet">
+               <button
+                  onClick={() => backButton((e) => !e)}>
+                  go back
+               </button>
+            </PIP>
          ) : (
             <PIP
                header=":("
