@@ -9,6 +9,7 @@ import PIP from "../../components/PIP";
 import Picture from "../../components/Picture";
 import Card from "../../components/Card";
 import Meals from "../../pages/Meals";
+import Plans from "../../pages/Plans";
 import { useNavigate } from "react-router-dom";
 
 function UserPage() {
@@ -18,6 +19,7 @@ function UserPage() {
    const [plans, setPlans] = React.useState([]);
    const [status, setStatus] = React.useState("");
    const [showMeals, setShowMeals] = React.useState(false);
+   const [showPlans, setShowPlans] = React.useState(false);
 
    React.useEffect(() => {
       async function getUser() {
@@ -67,6 +69,16 @@ function UserPage() {
       );
    }
 
+   if (showPlans) {
+      return (
+         <Plans
+            allPlans={plans}
+            friend={true}
+            backButton={setShowPlans}
+         />
+      );
+   }
+
    return (
       <div className={styles.wrapper}>
          <div className={styles.header}>
@@ -90,6 +102,7 @@ function UserPage() {
                   <Card
                      header="plans"
                      footer="2"
+                     onClick={() => setShowPlans(true)}
                   />
                   <Card
                      header="meals"
