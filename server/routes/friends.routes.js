@@ -238,7 +238,6 @@ router.delete("/", authenticate, async (req, res, next) => {
 });
 
 // GET A FRIEND
-// GET A FRIEND
 router.get(
    "/:userBId",
    authenticate,

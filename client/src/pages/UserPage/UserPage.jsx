@@ -56,13 +56,17 @@ function UserPage() {
 
    return (
       <div className={styles.wrapper}>
-         <h1 className={styles.username}>{username}</h1>
          <div className={styles.header}>
             <div className={styles.details}>
                <div className={styles.picture}>
                   <Picture />
                </div>
-               <h2 className={styles.name}>{name}</h2>
+               <div className={styles.names}>
+                  <h1 className={styles.username}>
+                     {username}
+                  </h1>
+                  <h2 className={styles.name}>{name}</h2>
+               </div>
             </div>
             <div className={styles.center}>
                <div className={styles.numbers}>
