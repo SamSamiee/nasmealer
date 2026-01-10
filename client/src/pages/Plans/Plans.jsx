@@ -88,6 +88,11 @@ function Plans({ friend = false, allPlans, backButton }) {
 
    return (
       <div className={styles.container}>
+         <button
+            className={styles.backButton}
+            onClick={() => false}>
+            back
+         </button>
          {data.length > 0 ? (
             <div>
                <div className={styles.header}>
@@ -112,7 +117,7 @@ function Plans({ friend = false, allPlans, backButton }) {
                               mainPlan={week_table}
                               edit={false}
                               onDelete={!handleDeletePlan}
-                              friend = {friend}
+                              friend={friend}
                            />
                         );
                      }
@@ -136,7 +141,7 @@ function Plans({ friend = false, allPlans, backButton }) {
                footer="no meals for them">
                <button
                   onClick={() => {
-                     backButton((e) => !e);
+                     backButton(() => false);
                   }}>
                   go back
                </button>
