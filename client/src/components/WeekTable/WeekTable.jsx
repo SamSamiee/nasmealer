@@ -10,6 +10,7 @@ function WeekTable({
    edit = true,
    planId,
    onDelete,
+   friend = false,
 }) {
    const {
       updateMeal,
@@ -84,6 +85,12 @@ function WeekTable({
                   onClick={handleReset}>
                   reset
                </button>
+            </div>
+         ) : friend ? (
+            <div>
+               <div className={styles.actions}>
+                  <button type="button">add</button>
+               </div>
             </div>
          ) : (
             <div className={styles.actions}>

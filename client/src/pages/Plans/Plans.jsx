@@ -111,7 +111,8 @@ function Plans({ friend = false, allPlans, backButton }) {
                               planId={plan_id}
                               mainPlan={week_table}
                               edit={false}
-                              onDelete={handleDeletePlan}
+                              onDelete={!handleDeletePlan}
+                              friend = {friend}
                            />
                         );
                      }
