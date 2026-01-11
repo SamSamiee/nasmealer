@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./RadioButton.module.css";
 
-function RadioButton({ value = false, onClick }) {
+function RadioButton({ value = "false", onClick }) {
    return (
       <div
          className={styles.wrapper}
@@ -9,16 +9,15 @@ function RadioButton({ value = false, onClick }) {
          <button
             disabled={value === "disabled"}
             className={`${styles.button} ${
-               value === true
+               value === "true"
                   ? styles.active
                   : value === "disabled"
                   ? styles.disabled
                   : ""
-            }`}
-            onClick={onClick}>
+            }`}>
             <div
                className={`${styles.circle} ${
-                  value === true
+                  value === "true"
                      ? styles.active
                      : value === "disabled"
                      ? styles.disabled

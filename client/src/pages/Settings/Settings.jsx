@@ -9,12 +9,14 @@ import {
 } from "../../config/api.js";
 
 function Settings() {
-   // idle | succes | changed | loading | error
+   // idle | changed | loading | error
    const [state, setState] = React.useState("idle");
-   const [changed, setChanged] = React.useState(false);
    const [publicPlansState, setPublicPlansState] =
       React.useState("disabled");
+
+   // GET SETTINGS FROM SERVER
    React.useEffect(() => {
+      setState("loading");
       async function getSettings() {
          try {
             const result = await fetch(
@@ -25,23 +27,30 @@ function Settings() {
                   headers: getAuthHeaders(),
                }
             );
+
+            if (!result.ok) {
+               throw new Error("no setting found");
+            }
+
             const json = await result.json();
             const data = json.data;
+            console.log("data received:", String(data));
 
-            setPublicPlansState(data);
+            setPublicPlansState(String(data));
+            setState("idle");
          } catch (err) {
-            setPublicPlansState("error");
+            setState("error");
             console.error(err);
          }
       }
+
+      // call the function
       getSettings();
    }, []);
 
+   // SUBMIT CHANGES --> this should fire after clicking save
    async function handleChange() {
-      const previousState = publicPlansState;
-      const newState = !publicPlansState;
-
-      setPublicPlansState(newState);
+      setState("loading");
 
       try {
          const result = await fetch(
@@ -50,7 +59,9 @@ function Settings() {
                method: "PATCH",
                credentials: "include",
                body: JSON.stringify({
-                  settings: { public_plans: newState },
+                  settings: {
+                     public_plans: publicPlansState,
+                  },
                }),
                headers: {
                   ...getAuthHeaders(),
@@ -63,10 +74,10 @@ function Settings() {
             throw new Error("Operation failed");
          }
       } catch (err) {
-         setPublicPlansState(previousState);
          console.error(err);
+      } finally {
+         setState("idle");
       }
-      return;
    }
 
    if (publicPlansState === "error") {
@@ -85,18 +96,38 @@ function Settings() {
             <div>
                <div className={styles.settingItem}>
                   Public meals and plans
+                  <RadioButton
+                     onClick={() => {
+                        setPublicPlansState((e) => {
+                           if (e === "true") {
+                              return "false";
+                           } else if (e === "false") {
+                              return "true";
+                           } else {
+                              return e;
+                           }
+                        });
+                        setState("changed");
+                     }}
+                     value={
+                        publicPlansState === "error"
+                           ? "disabled"
+                           : publicPlansState
+                     }
+                  />
                </div>
-               <RadioButton
-                  onClick={handleChange}
-                  value={
-                     publicPlansState === "error"
-                        ? "disabled"
-                        : publicPlansState
-                  }
-               />
             </div>
          </div>
-         {changed && <button>save</button>}
+         {state === "changed" && (
+            <button
+               disabled={state === "loading"}
+               onClick={() => {
+                  setState("loading");
+                  handleChange();
+               }}>
+               {state === "changed" ? "save" : "updating"}
+            </button>
+         )}
       </div>
    );
 }
