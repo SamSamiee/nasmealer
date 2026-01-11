@@ -171,7 +171,7 @@ export function useCart() {
         headers: getAuthHeaders(),
         body: JSON.stringify({
           product: {
-            name: savedName,  // Server expects 'name'
+            initialName: savedName,  
             quantity: savedQuantity,
             unit: savedUnit
           }
