@@ -33,3 +33,11 @@
    border-radius: 999px;
    background-color: rgb(255, 255, 255);
 }
+
+.button.disabled {
+   opacity: 0.5;
+}
+
+.circle.disabled {
+   opacity: 0.5;
+}

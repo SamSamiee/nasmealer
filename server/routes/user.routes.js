@@ -103,11 +103,9 @@ router.post("/signup", async (req, res, next) => {
    try {
       // check for the required fields
       if (!email || !username || !password) {
-         return res
-            .status(400)
-            .json({
-               error: "an email, username, and password are required.",
-            });
+         return res.status(400).json({
+            error: "an email, username, and password are required.",
+         });
       }
       // check if the username or email already exists
       const existingUser = await pool.query(
@@ -116,11 +114,9 @@ router.post("/signup", async (req, res, next) => {
       );
       // if exits, return error
       if (existingUser.rows.length > 0) {
-         return res
-            .status(400)
-            .json({
-               error: "the username or email is already taken.",
-            });
+         return res.status(400).json({
+            error: "the username or email is already taken.",
+         });
       }
       // hash the password before storing
       const saltRounds = 10;
@@ -140,6 +136,13 @@ router.post("/signup", async (req, res, next) => {
             "user",
          ]
       );
+
+      // create privacy setting row for the user
+      await pool.query(
+         `INSERT INTO user_privacy (user_id) VALUES ($1)`,
+         [newUser.rows[0].id]
+      );
+
       return res.status(201).json({
          status: "success",
          message: "user created successfully",
@@ -158,11 +161,9 @@ router.post("/login", async (req, res, next) => {
 
    // check for requried fields
    if (!username || !password) {
-      return res
-         .status(400)
-         .json({
-            error: " username and password are required.",
-         });
+      return res.status(400).json({
+         error: " username and password are required.",
+      });
    }
    try {
       console.log(
@@ -184,11 +185,9 @@ router.post("/login", async (req, res, next) => {
          console.log(
             `Login failed: User "${username}" not found`
          );
-         return res
-            .status(400)
-            .json({
-               error: "invalid username or password",
-            });
+         return res.status(400).json({
+            error: "invalid username or password",
+         });
       }
       //password check - compare hashed password with provided password
       const hashedPassword = user.rows[0].password;
@@ -200,11 +199,9 @@ router.post("/login", async (req, res, next) => {
          console.log(
             `Login failed: Invalid password for user "${username}"`
          );
-         return res
-            .status(400)
-            .json({
-               error: "invalid username or password",
-            });
+         return res.status(400).json({
+            error: "invalid username or password",
+         });
       }
       console.log(
          `Login successful for user "${username}"`
@@ -268,12 +265,10 @@ router.post("/logout", authenticate, async (req, res) => {
          "DELETE FROM user_sessions WHERE id = $1",
          [req.user.sessionId]
       );
-      return res
-         .status(200)
-         .json({
-            status: "success",
-            message: "Logged out successfully",
-         });
+      return res.status(200).json({
+         status: "success",
+         message: "Logged out successfully",
+      });
    } catch (err) {
       next();
    }
@@ -287,6 +282,73 @@ router.get(
       const userId = req.user.userId;
       try {
       } catch (err) {
+         next(err);
+      }
+   }
+);
+
+// GET USER SERTTINGS
+router.get(
+   "/settings",
+   authenticate,
+   async (req, res, next) => {
+      const userId = req.user.userId;
+      try {
+         const result = await pool.query(
+            `SELECT public_plans FROM user_privacy 
+         WHERE user_id = $1 `,
+            [userId]
+         );
+         if (result.rows.length === 0) {
+            res.status(500).json({
+               error: "setting not found",
+            });
+            throw new Error("setting not found");
+         }
+         const data = result.rows[0].public_plans;
+         res.status(200).json({ data });
+      } catch (err) {
+         console.error(err);
+         next(err);
+      }
+   }
+);
+
+// UPDATE USER SETTINGS
+router.patch(
+   "/settings",
+   authenticate,
+   async (req, res, next) => {
+      const userId = req.user.userId;
+      const settings = req.body.settings;
+
+      // validate settings object
+      if (
+         !settings ||
+         Object.entries(settings).length === 0
+      ) {
+         return res
+            .status(400)
+            .json({ error: "no settings received" });
+      }
+
+      try {
+         for (const [key, value] of Object.entries(
+            settings
+         )) {
+            await pool.query(
+               `UPDATE user_privacy
+               SET public_plans = $1 
+               WHERE user_id = $2`,
+               [value, userId]
+            );
+         }
+
+         return res
+            .status(200)
+            .json("successfully updated settings");
+      } catch (err) {
+         console.log(err);
          next(err);
       }
    }
