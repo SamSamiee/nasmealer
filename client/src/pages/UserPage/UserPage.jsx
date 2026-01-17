@@ -21,6 +21,109 @@ function UserPage() {
    const [showMeals, setShowMeals] = React.useState(false);
    const [showPlans, setShowPlans] = React.useState(false);
 
+   async function unfollow() {
+      const lastStatus = status;
+      setStatus("");
+      setState("loading");
+      try {
+         const result = await fetch(
+            `${SERVER_URL}/friend`,
+            {
+               method: "DELETE",
+               credentials: "include",
+               headers: getAuthHeaders(),
+               body: JSON.stringify({
+                  target_user_id: userId,
+               }),
+            }
+         );
+
+         if (!result.ok) {
+            throw new Error("operation canceled.");
+         }
+      } catch (err) {
+         setStatus(lastStatus);
+         console.error(err);
+      } finally {
+         setState("idle");
+      }
+   }
+
+   async function cancelRequest() {
+      const lastStatus = status;
+
+      try {
+         setStatus("");
+         setState("loading");
+
+         const result = await fetch(
+            `${SERVER_URL}/friend`,
+            {
+               method: "PATCH",
+               credentials: "include",
+               headers: getAuthHeaders(),
+               body: JSON.stringify({
+                  target_user_id: userId,
+               }),
+            }
+         );
+
+         if (!result.ok) {
+            throw new Error("could not cancel request");
+         }
+      } catch (err) {
+         console.error(err);
+         setStatus(lastStatus);
+      } finally {
+         setState("idle");
+      }
+   }
+
+   async function sendRequest() {
+      const lastStatus = status;
+      setState("loading");
+
+      try {
+         const result = await fetch(
+            `${SERVER_URL}/friend`,
+            {
+               method: "POST",
+               credentials: "include",
+               headers: getAuthHeaders(),
+               body: JSON.stringify({
+                  target_user_id: userId,
+               }),
+            }
+         );
+
+         if (!result.ok) {
+            throw new Error(
+               "something went wrong, could not send friend request"
+            );
+         }
+
+         setStatus("pending");
+      } catch (err) {
+         setStatus(lastStatus);
+         console.error(err);
+      } finally {
+         setState("idle");
+      }
+   }
+
+   function handleClick() {
+      if (status === "accepted") {
+         // remove friend
+         unfollow();
+      } else if (status === "pending") {
+         // remove request
+         cancelRequest();
+      } else {
+         // send request
+         sendRequest();
+      }
+   }
+
    React.useEffect(() => {
       async function getUser() {
          try {
@@ -111,6 +214,7 @@ function UserPage() {
                   />
                </div>
                <button
+                  onClick={handleClick}
                   disabled={
                      status === "pending" ||
                      state === "loading"

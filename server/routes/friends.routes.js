@@ -468,4 +468,58 @@ router.get(
    }
 );
 
+// CANCEL PENDING REQUEST
+router.patch("/", authenticate, async (req, res, next) => {
+   const userAId = req.user.userId;
+   const userBId = req.body?.target_user_id;
+
+   if (!userBId) {
+      return res
+         .status(400)
+         .json({ error: "target_user_id is required" });
+   }
+
+   // Prevent self-operation
+   if (userAId === userBId) {
+      return res.status(400).json({
+         error: "Cannot cancel request to yourself",
+      });
+   }
+
+   // Normalize user IDs for consistent lookup
+   const { userId, friendId } = normalizeUsers(
+      userAId,
+      userBId
+   );
+
+   try {
+      const result = await pool.query(
+         `
+         DELETE FROM friendships
+         WHERE
+            user_id = $1 AND
+            friend_id = $2 AND
+            requester_id = $3 AND
+            status = 'pending'
+         RETURNING id
+         `,
+         [userId, friendId, userAId]
+      );
+
+      if (result.rows.length === 0) {
+         return res.status(404).json({
+            error: "No pending request found to cancel",
+         });
+      }
+
+      return res.status(200).json({
+         message: "Request successfully canceled",
+         id: result.rows[0].id,
+      });
+   } catch (err) {
+      console.error(err);
+      next(err);
+   }
+});
+
 module.exports = router;
