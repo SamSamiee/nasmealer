@@ -11,6 +11,7 @@ const links = [
    { name: "meals", to: "/meals" },
    { name: "search", to: "/search" },
    { name: "settings", to: "/settings" },
+   { name: "requests", to: "/requests" },
 ];
 
 function HamMenu({ children }) {

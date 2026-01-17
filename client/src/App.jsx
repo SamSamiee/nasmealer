@@ -13,6 +13,7 @@ import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
 import Search from "./pages/Search";
 import UserPage from "./pages/UserPage";
+import Requests from "./pages/Requests";
 import Settings from "./pages/Settings";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -109,6 +110,14 @@ function App() {
                      element={
                         <ProtectedRoute>
                            <Settings />
+                        </ProtectedRoute>
+                     }
+                  />
+                  <Route
+                     path="/requests"
+                     element={
+                        <ProtectedRoute>
+                           <Requests />
                         </ProtectedRoute>
                      }
                   />

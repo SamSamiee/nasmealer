@@ -146,14 +146,15 @@ router.post("/", authenticate, async (req, res, next) => {
          } else if (existingStatus === "rejected") {
             const result = await pool.query(
                `UPDATE friendships
-                SET 
-                    status='pending',
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE user_id=$1 AND 
-                friend_id=$2
-                RETURNING id
-                `,
-               [userId, friendId]
+               SET 
+                  status='pending',
+                  requester_id=$3,
+                  updated_at = CURRENT_TIMESTAMP
+               WHERE user_id=$1 AND 
+               friend_id=$2
+               RETURNING id
+               `,
+               [userId, friendId, userAId]
             );
             const {
                rows: [{ id }],
@@ -166,11 +167,11 @@ router.post("/", authenticate, async (req, res, next) => {
       } else {
          const result = await pool.query(
             `
-        INSERT INTO friendships (user_id, friend_id) 
-        VALUES ($1, $2)
+        INSERT INTO friendships (user_id, friend_id, requester_id) 
+        VALUES ($1, $2, $3)
         RETURNING id
         `,
-            [userId, friendId]
+            [userId, friendId, userAId]
          );
 
          const {
@@ -300,7 +301,7 @@ router.get(
                name,
                username,
                id,
-               status: "rejected"
+               status: "rejected",
             });
          }
 
@@ -314,7 +315,7 @@ router.get(
             return res.status(200).json({
                friend_name,
                friend_id,
-               status
+               status,
             });
          }
 
@@ -459,7 +460,7 @@ router.get(
             friend_name,
             friend_meals,
             friend_plans,
-            status
+            status,
          });
       } catch (err) {
          next(err);
