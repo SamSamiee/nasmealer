@@ -274,35 +274,6 @@ router.post("/logout", authenticate, async (req, res) => {
    }
 });
 
-// GET ALL PENDING REQUESETS
-router.get(
-   "/pending",
-   authenticate,
-   async (req, res, next) => {
-      const userId = req.user.userId;
-      try {
-         const data = await pool.query(
-            `SELECT f.requester_id, u.name AS requester_name FROM friendships f
-               JOIN users u ON u.id = f.requester_id
-            WHERE
-               (f.user_id = $1 OR f.friend_id = $1) AND
-               f.status = 'pending' AND
-               f.requester_id != $1
-            ORDER BY f.updated_at DESC`,
-            [userId]
-         );
-
-         if (data.rows.length === 0) {
-            return res.status(200).json({ data: [] });
-         }
-
-         return res.status(200).json({ data: data.rows });
-      } catch (err) {
-         next(err);
-      }
-   }
-);
-
 // GET USER SERTTINGS
 router.get(
    "/settings",

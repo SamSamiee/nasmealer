@@ -468,6 +468,39 @@ router.get(
    }
 );
 
+// GET ALL PENDING REQUESETS
+router.get(
+   "/pending",
+   authenticate,
+   async (req, res, next) => {
+      const userId = req.user.userId;
+      try {
+         const data = await pool.query(
+            `SELECT
+               f.requester_id,
+               u.name AS requester_name,
+               u.username AS requester_username 
+            FROM friendships f
+            JOIN users u ON u.id = f.requester_id
+            WHERE
+               (f.user_id = $1 OR f.friend_id = $1) AND
+               f.status = 'pending' AND
+               f.requester_id != $1
+            ORDER BY f.updated_at DESC`,
+            [userId]
+         );
+
+         if (data.rows.length === 0) {
+            return res.status(200).json({ data: [] });
+         }
+
+         return res.status(200).json({ data: data.rows });
+      } catch (err) {
+         next(err);
+      }
+   }
+);
+
 // CANCEL PENDING REQUEST
 router.patch("/", authenticate, async (req, res, next) => {
    const userAId = req.user.userId;
@@ -521,5 +554,66 @@ router.patch("/", authenticate, async (req, res, next) => {
       next(err);
    }
 });
+
+router.patch(
+   "/request",
+   authenticate,
+   async (req, res, next) => {
+      const userAId = req.user.userId;  // The person responding (recipient)
+      const userBId = req.body?.target_user_id;  // The requester
+      const command = req.body?.command;
+
+      if (!userBId) {
+         return res
+            .status(400)
+            .json({ error: "target_id not provided." });
+      }
+
+      // Fix: Changed || to && - command must be one of the valid values
+      if (
+         command !== "accepted" &&
+         command !== "rejected"
+      ) {
+         return res
+            .status(400)
+            .json({ error: "invalid command" });
+      }
+
+      // Normalize user IDs
+      const { userId, friendId } = normalizeUsers(
+         userAId,
+         userBId
+      );
+
+      try {
+         const result = await pool.query(
+            `
+            UPDATE friendships SET status = $1, updated_at = CURRENT_TIMESTAMP
+            WHERE
+               user_id = $2 AND
+               friend_id = $3 AND
+               requester_id = $4 AND  // requester_id should be userBId (the person who sent the request)
+               status = 'pending'
+            RETURNING id
+            `,
+            [command, userId, friendId, userBId]
+         );
+
+         if (result.rows.length === 0) {
+            return res.status(404).json({
+               error: "No pending request found"
+            });
+         }
+
+         return res.status(200).json({
+            message: `Request ${command} successfully`,
+            id: result.rows[0].id,
+         });
+      } catch (err) {
+         console.error(err);
+         next(err);
+      }
+   }
+);
 
 module.exports = router;
