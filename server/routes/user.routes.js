@@ -320,14 +320,29 @@ router.patch(
       }
 
       try {
-         for (const [key, value] of Object.entries(
-            settings
-         )) {
+         // Get the value from public_plans (single source of truth)
+         // Both public_meals and public_plans are always set together
+         const publicValueRaw = settings.public_plans !== undefined 
+            ? settings.public_plans 
+            : (settings.public_meals !== undefined ? settings.public_meals : null);
+         
+         // Convert string "true"/"false" to boolean if needed
+         let publicValue = null;
+         if (publicValueRaw !== null && publicValueRaw !== undefined) {
+            if (typeof publicValueRaw === 'string') {
+               publicValue = publicValueRaw === 'true' || publicValueRaw === 'True';
+            } else {
+               publicValue = Boolean(publicValueRaw);
+            }
+         }
+         
+         if (publicValue !== null) {
+            // Set both public_meals and public_plans to the same value
             await pool.query(
                `UPDATE user_privacy
-               SET public_plans = $1 
+               SET public_meals = $1, public_plans = $1 
                WHERE user_id = $2`,
-               [value, userId]
+               [publicValue, userId]
             );
          }
 
