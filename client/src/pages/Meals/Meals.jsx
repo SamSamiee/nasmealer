@@ -47,10 +47,7 @@ function Meals({ allMeals, friend = false, backButton }) {
                            key={id}
                            name={name}
                            list={ingredients}
-                           fnRemove={() =>
-                              !friend &&
-                              handleDeleteMeal(id)
-                           }
+                           fnRemove={!friend ? () => handleDeleteMeal(id) : undefined}
                         />
                      )
                   )}
