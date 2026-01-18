@@ -9,7 +9,6 @@ const links = [
    { name: "plans", to: "/plans" },
    { name: "cart", to: "/cart" },
    { name: "meals", to: "/meals" },
-   { name: "search", to: "/search" },
    { name: "settings", to: "/settings" },
    { name: "requests", to: "/requests" },
 ];

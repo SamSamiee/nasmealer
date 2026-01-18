@@ -3,21 +3,26 @@ import {
    Routes,
    Route,
 } from "react-router-dom";
-import Home from "./pages/Home";
+
 import Cart from "./pages/Cart";
+import Friends from "./pages/Friends"
+import Home from "./pages/Home";
 import Meals from "./pages/Meals";
-import Plans from "./pages/Plans";
-import NewPlan from "./pages/NewPlan";
-import NewMeal from "./pages/NewMeal";
-import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
-import Search from "./pages/Search";
-import UserPage from "./pages/UserPage";
+import NewMeal from "./pages/NewMeal";
+import NewPlan from "./pages/NewPlan";
+import Plans from "./pages/Plans";
 import Requests from "./pages/Requests";
+import Search from "./pages/Search";
 import Settings from "./pages/Settings";
+import SignUp from "./pages/SignUp";
+import UserPage from "./pages/UserPage";
+
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
+
 import UserProvider from "./context/UserProvider";
+
 function App() {
    return (
       <>
@@ -46,6 +51,14 @@ function App() {
                      element={
                         <ProtectedRoute>
                            <Cart />
+                        </ProtectedRoute>
+                     }
+                  />
+                  <Route
+                     path="/friends"
+                     element={
+                        <ProtectedRoute>
+                           <Friends />
                         </ProtectedRoute>
                      }
                   />

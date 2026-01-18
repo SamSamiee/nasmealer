@@ -76,7 +76,7 @@ router.get("/", authenticate, async (req, res, next) => {
    try {
       const result = await pool.query(
          `
-            SELECT u.name, u.id, f.updated_at FROM friendships f
+            SELECT u.name, u.id, u.username, f.updated_at FROM friendships f
             JOIN users u ON 
                 (f.user_id = $1 AND f.friend_id = u.id) OR
                 (f.friend_id = $1 AND f.user_id = u.id)
@@ -90,11 +90,11 @@ router.get("/", authenticate, async (req, res, next) => {
       );
 
       const friends = [];
-      result.rows.forEach(({ name, id, updated_at }) =>
-         friends.push({ name, id, updated_at })
+      result.rows.forEach(({ name, id, updated_at, username }) =>
+         friends.push({ name, username, id, updated_at })
       );
 
-      return res.status(200).json(friends);
+      return res.status(200).json({friends});
    } catch (err) {
       next(err);
    }

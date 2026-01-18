@@ -101,16 +101,22 @@ function UserPage() {
          );
 
          if (!result.ok) {
-            const errorData = await result.json().catch(() => ({}));
+            const errorData = await result
+               .json()
+               .catch(() => ({}));
             throw new Error(
-               errorData.error || "something went wrong, could not send friend request"
+               errorData.error ||
+                  "something went wrong, could not send friend request"
             );
          }
 
          setStatus("pending");
       } catch (err) {
          setStatus(lastStatus);
-         console.error("Error sending friend request:", err);
+         console.error(
+            "Error sending friend request:",
+            err
+         );
       } finally {
          setState("idle");
       }
@@ -144,7 +150,11 @@ function UserPage() {
             const { friend_meals, friend_plans, status } =
                json;
 
-            setStatus(status !== undefined && status !== null ? status : "");
+            setStatus(
+               status !== undefined && status !== null
+                  ? status
+                  : ""
+            );
             friend_meals && setMeals(friend_meals);
             friend_plans && setPlans(friend_plans);
 
@@ -206,10 +216,6 @@ function UserPage() {
             </div>
             <div className={styles.center}>
                <div className={styles.numbers}>
-                  <Card
-                     header="friends"
-                     footer={friendCount}
-                  />
                   <Card
                      header="plans"
                      footer={plans.length || 0}
