@@ -64,7 +64,7 @@ function getEmptyPlan() {
   ];
 }
 
-export function useWeekTable(mainPlan, tableName) {
+export function useWeekTable(mainPlan, tableName, initialPlan) {
   const location = useLocation();
   const [weekMeals, setWeekMeals] = React.useState(() => {
     // Initialize with mainPlan if provided, otherwise use fresh empty plan
@@ -73,15 +73,17 @@ export function useWeekTable(mainPlan, tableName) {
   const [allMeals, setAllMeals] = React.useState([]);
   const [allPlans, setAllPlans] = React.useState([]);
   const [name, setName] = React.useState(tableName || "");
+  const [initialPlanProcessed, setInitialPlanProcessed] = React.useState(false);
 
-  // Reset state when navigating to new plan page (no mainPlan and no tableName)
+  // Reset state when navigating to new plan page (no mainPlan and no tableName and no initialPlan)
   React.useEffect(() => {
-    if (!mainPlan && !tableName && location.pathname === "/newplan") {
+    if (!mainPlan && !tableName && !initialPlan && location.pathname === "/newplan") {
       // New plan - reset to empty state with fresh copy
       setWeekMeals(getEmptyPlan());
       setName("");
+      setInitialPlanProcessed(false);
     }
-  }, [location.pathname, mainPlan, tableName]);
+  }, [location.pathname, mainPlan, tableName, initialPlan]);
 
   const navigate = useNavigate();
 
@@ -112,12 +114,60 @@ export function useWeekTable(mainPlan, tableName) {
 
         const json = await result.json();
         setAllMeals(json.meals);
+        
+        // Process initial plan if provided and meals are loaded
+        if (initialPlan && !initialPlanProcessed && json.meals.length > 0) {
+          // Transform week_table to use user's meal IDs by matching names
+          const transformedWeekTable = initialPlan.week_table.map(({ day, meals }) => ({
+            day,
+            meals: meals.map(({ type, meal_name, meal_id }) => {
+              // Find user's meal by name
+              const userMeal = json.meals.find((m) => m.name === meal_name);
+              return {
+                type,
+                meal_name: meal_name || "",
+                meal_id: userMeal?.id || "",
+              };
+            }),
+          }));
+          
+          setWeekMeals(transformedWeekTable);
+          
+          // Check for name conflicts and set plan name
+          const allPlansResult = await fetch(`${SERVER_URL}/plans`, {
+            method: "GET",
+            credentials: "include",
+            headers: getAuthHeaders(),
+          });
+          
+          if (allPlansResult.ok) {
+            const plansJson = await allPlansResult.json();
+            const existingPlanNames = (plansJson.data || []).map((p) => p.plan_name.toLowerCase());
+            let finalPlanName = initialPlan.planName || "";
+            
+            if (finalPlanName) {
+              let testName = finalPlanName;
+              let counter = 1;
+              
+              // Keep adding (n) prefix until we find a unique name
+              while (existingPlanNames.includes(testName.toLowerCase())) {
+                testName = `(${counter})${finalPlanName}`;
+                counter++;
+              }
+              finalPlanName = testName;
+            }
+            
+            setName(finalPlanName);
+          }
+          
+          setInitialPlanProcessed(true);
+        }
       } catch (err) {
         console.error(err);
       }
     }
     getAllMeals();
-  }, []);
+  }, [initialPlan, initialPlanProcessed]);
 
   // fetch all the plans
   React.useEffect(() => {

@@ -48,6 +48,16 @@ function Meals({ allMeals, friend = false, backButton }) {
                            name={name}
                            list={ingredients}
                            fnRemove={!friend ? () => handleDeleteMeal(id) : undefined}
+                           fnAdd={friend ? () => {
+                              navigate("/newmeal", {
+                                 state: {
+                                    meal: {
+                                       mealName: name,
+                                       list: ingredients || [],
+                                    },
+                                 },
+                              });
+                           } : undefined}
                         />
                      )
                   )}

@@ -1,13 +1,21 @@
 import { IoRemoveCircleOutline } from "react-icons/io5";
 import styles from "./MealCard.module.css";
 
-function MealCard({ name, list, fnEdit, fnRemove }) {
+function MealCard({ name, list, fnEdit, fnRemove, fnAdd }) {
    return (
       <div className={styles.container}>
          <div className={styles.header}>
             <h4 className={styles.title}>{name}</h4>
-            {(fnEdit || fnRemove) && (
+            {(fnEdit || fnRemove || fnAdd) && (
                <div className={styles.actions}>
+                  {fnAdd && (
+                     <button
+                        className={styles.actionButton}
+                        type="button"
+                        onClick={() => fnAdd()}>
+                        add
+                     </button>
+                  )}
                   {fnEdit && (
                      <button
                         className={styles.actionButton}

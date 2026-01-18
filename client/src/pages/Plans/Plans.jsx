@@ -8,7 +8,7 @@ import PIP from "../../components/PIP";
 import { useNavigate } from "react-router-dom";
 import styles from "./Plans.module.css";
 
-function Plans({ friend = false, allPlans, backButton }) {
+function Plans({ friend = false, allPlans, backButton, friendMeals = [] }) {
    const [loading, setLoading] = React.useState(false);
    const [data, setData] = React.useState([]);
    const navigate = useNavigate();
@@ -44,6 +44,77 @@ function Plans({ friend = false, allPlans, backButton }) {
          setData(allPlans);
       }
    }, [allPlans]);
+
+   // HANDLE ADDING FRIEND PLAN
+   async function handleAddPlan(plan) {
+      try {
+         // First, get all unique meals from the plan
+         const planMeals = new Map();
+         plan.week_table.forEach(({ day, meals }) => {
+            meals.forEach(({ meal_name, meal_id }) => {
+               if (meal_name && !planMeals.has(meal_name)) {
+                  planMeals.set(meal_name, { meal_name, meal_id });
+               }
+            });
+         });
+
+         // Get user's existing meals to check for duplicates
+         const userMealsResult = await fetch(`${SERVER_URL}/meals`, {
+            method: "GET",
+            credentials: "include",
+            headers: getAuthHeaders(),
+         });
+         const userMealsJson = await userMealsResult.json();
+         const existingMealNames = new Set(
+            (userMealsJson.meals || []).map((m) => m.name.toLowerCase())
+         );
+
+         // Add each meal that doesn't exist yet
+         const mealsToAdd = [];
+         for (const [mealName, { meal_id: friendMealId }] of planMeals.entries()) {
+            if (!existingMealNames.has(mealName.toLowerCase())) {
+               // Find the full meal data from friendMeals
+               const friendMeal = friendMeals.find(
+                  (m) => m.name === mealName || m.id === friendMealId
+               );
+               if (friendMeal) {
+                  mealsToAdd.push(friendMeal);
+               }
+            }
+         }
+
+         // Add all meals that don't exist
+         for (const meal of mealsToAdd) {
+            try {
+               await fetch(`${SERVER_URL}/meals`, {
+                  method: "POST",
+                  credentials: "include",
+                  headers: getAuthHeaders(),
+                  body: JSON.stringify({
+                     name: meal.name,
+                     ingredients: meal.ingredients || [],
+                  }),
+               });
+            } catch (err) {
+               console.error(`Error adding meal ${meal.name}:`, err);
+            }
+         }
+
+         // Wait a bit for meals to be added, then navigate to NewPlan
+         // Navigate with plan data
+         navigate("/newplan", {
+            state: {
+               plan: {
+                  planName: plan.plan_name,
+                  week_table: plan.week_table,
+               },
+            },
+         });
+      } catch (err) {
+         console.error("Error adding friend plan:", err);
+         window.alert("Failed to add plan. Please try again.");
+      }
+   }
 
    // DELETE PLAN WITH OPTIMISTIC RENDERING
    async function handleDeletePlan(planId) {
@@ -122,6 +193,7 @@ function Plans({ friend = false, allPlans, backButton }) {
                               edit={false}
                               onDelete={!friend ? handleDeletePlan : undefined}
                               friend={friend}
+                              onAdd={friend ? () => handleAddPlan({ plan_name, week_table }) : undefined}
                            />
                         );
                      }

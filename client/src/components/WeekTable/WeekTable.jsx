@@ -11,6 +11,8 @@ function WeekTable({
    planId,
    onDelete,
    friend = false,
+   onAdd,
+   initialPlan,
 }) {
    const {
       updateMeal,
@@ -22,7 +24,7 @@ function WeekTable({
       allMeals,
       name,
       setName,
-   } = useWeekTable(mainPlan, tableName);
+   } = useWeekTable(mainPlan, tableName, initialPlan);
 
    return (
       <div className={styles.container}>
@@ -89,7 +91,7 @@ function WeekTable({
          ) : friend ? (
             <div>
                <div className={styles.actions}>
-                  <button type="button">add</button>
+                  <button type="button" onClick={onAdd}>add</button>
                </div>
             </div>
          ) : (

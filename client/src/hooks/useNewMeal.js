@@ -21,10 +21,10 @@ export function useNewMeal(initial) {
         credentials: "include",
         headers: getAuthHeaders(),
       });
+      const json = await result.json();
       if (result.ok) {
         setData(json);
       }
-      const json = await result.json();
 
     } catch (err) {
       console.error(err);
@@ -41,8 +41,87 @@ export function useNewMeal(initial) {
     }
   }, [mealId]);
 
+  // Transform initial meal data if it comes from friend's meal
+  // Friend meal format: { mealName, list: [{ name, unit, quantity }] }
+  // Need to add id to list items and check for name conflicts
+  const [transformedInitial, setTransformedInitial] = React.useState(null);
+  const [checkingName, setCheckingName] = React.useState(false);
+
+  // Check for name conflicts and transform initial meal data
+  React.useEffect(() => {
+    async function transformAndCheckName() {
+      if (!initial || mealId) {
+        // If mealId exists, data will be fetched separately
+        return;
+      }
+
+      setCheckingName(true);
+      try {
+        // Fetch all user meals to check for name conflicts
+        const result = await fetch(`${SERVER_URL}/meals`, {
+          method: "GET",
+          credentials: "include",
+          headers: getAuthHeaders(),
+        });
+
+        if (result.ok) {
+          const json = await result.json();
+          const existingMeals = json.meals || [];
+          
+          // Transform ingredients to include id field
+          const transformedList = (initial.list || []).map((ing) => ({
+            name: ing.name,
+            unit: ing.unit,
+            quantity: ing.quantity,
+            id: ing.id || crypto.randomUUID(),
+          }));
+
+          // Check for name conflicts and add (n) prefix if needed
+          let finalMealName = initial.mealName || "";
+          if (finalMealName) {
+            const existingNames = existingMeals.map((m) => m.name.toLowerCase());
+            let testName = finalMealName;
+            let counter = 1;
+            
+            // Keep adding (n) prefix until we find a unique name
+            while (existingNames.includes(testName.toLowerCase())) {
+              testName = `(${counter})${finalMealName}`;
+              counter++;
+            }
+            finalMealName = testName;
+          }
+
+          setTransformedInitial({
+            mealName: finalMealName,
+            list: transformedList,
+          });
+        }
+      } catch (err) {
+        console.error("Error checking meal name:", err);
+        // On error, still use initial data but transform list
+        const transformedList = (initial.list || []).map((ing) => ({
+          name: ing.name,
+          unit: ing.unit,
+          quantity: ing.quantity,
+          id: ing.id || crypto.randomUUID(),
+        }));
+        setTransformedInitial({
+          mealName: initial.mealName || "",
+          list: transformedList,
+        });
+      } finally {
+        setCheckingName(false);
+      }
+    }
+
+    transformAndCheckName();
+  }, [initial, mealId]);
+
   // if meal id is present the initial meal would be the result of fetch
-  const initialMeal = mealId ? data : initial;
+  // Otherwise, use transformed initial or initial as-is
+  const initialMeal = mealId 
+    ? data 
+    : (transformedInitial || initial);
 
   // form states
   const [mealName, setMealName] = React.useState(initialMeal?.mealName || "");
@@ -97,7 +176,7 @@ export function useNewMeal(initial) {
   }
 
   return {
-    isLoading,
+    isLoading: isLoading || checkingName,
     units,
     handleSubmit,
     mealName,

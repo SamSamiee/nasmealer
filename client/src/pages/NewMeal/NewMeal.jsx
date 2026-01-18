@@ -1,9 +1,13 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import IngredientCard from "../../components/IngredientCard";
 import { useNewMeal } from "../../hooks/useNewMeal.js";
 import styles from "./NewMeal.module.css";
 
 function NewMeal({ initial }) {
+  const location = useLocation();
+  // Get initial meal data from navigation state or prop
+  const initialMeal = location.state?.meal || initial;
   const {
     isLoading,
     units,
@@ -19,7 +23,7 @@ function NewMeal({ initial }) {
     list,
     setList,
     handleReset,
-  } = useNewMeal(initial);
+  } = useNewMeal(initialMeal);
 
   const ingredientNameRef = React.useRef(null);
 

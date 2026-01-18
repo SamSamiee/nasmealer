@@ -1,4 +1,5 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import WeekTable from "../../components/WeekTable";
 import PIP from "../../components/PIP";
 import { SERVER_URL, getAuthHeaders } from "../../config/api.js";
@@ -6,9 +7,13 @@ import { useNavigate } from "react-router-dom";
 import styles from "./NewPlan.module.css";
 
 function NewPlan() {
+  const location = useLocation();
   const [data, setData] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const navigate = useNavigate();
+  
+  // Get initial plan data from navigation state
+  const initialPlan = location.state?.plan;
 
   // GET ALL MEALS
   async function getAllMeals() {
@@ -66,7 +71,9 @@ function NewPlan() {
 
   return (
     <div className={styles.container}>
-      <WeekTable />
+      <WeekTable 
+        initialPlan={initialPlan}
+      />
     </div>
   );
 }

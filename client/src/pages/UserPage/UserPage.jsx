@@ -185,6 +185,7 @@ function UserPage() {
             allPlans={plans}
             friend={true}
             backButton={setShowPlans}
+            friendMeals={meals}
          />
       );
    }
