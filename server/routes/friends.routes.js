@@ -259,6 +259,8 @@ router.get(
 
       try {
          // Check if they are actually friends (status = 'accepted')
+         // Since friendships are stored with user_id < friend_id (normalized),
+         // we explicitly check the normalized pair
          const friendQuery = await pool.query(
             `
             SELECT
@@ -266,15 +268,12 @@ router.get(
                 u.id AS friend_id,
                 f.status 
             FROM friendships f
-            JOIN users u ON
-                (f.user_id = $1 AND f.friend_id = u.id)
-                OR
-                (f.friend_id = $1 AND f.user_id = u.id)
+            JOIN users u ON (f.user_id = u.id OR f.friend_id = u.id)
             WHERE
-                (f.user_id = $1 OR f.friend_id = $1)
-                AND u.id = $2
+                f.user_id = $1 AND f.friend_id = $2
+                AND u.id = $3
             `,
-            [userId, userBId] // Check normalized pair, but verify userBId matches
+            [userId, friendId, userBId] // Use normalized pair (userId, friendId) and verify userBId matches
          );
 
          // If no friendship record exists, check if user exists
