@@ -5,7 +5,7 @@ import {
 } from "react-router-dom";
 
 import Cart from "./pages/Cart";
-import Friends from "./pages/Friends"
+import Friends from "./pages/Friends";
 import Home from "./pages/Home";
 import Meals from "./pages/Meals";
 import Login from "./pages/Login";
@@ -17,10 +17,8 @@ import Search from "./pages/Search";
 import Settings from "./pages/Settings";
 import SignUp from "./pages/SignUp";
 import UserPage from "./pages/UserPage";
-
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
-
 import UserProvider from "./context/UserProvider";
 
 function App() {
