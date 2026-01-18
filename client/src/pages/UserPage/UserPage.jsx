@@ -20,6 +20,7 @@ function UserPage() {
    const [status, setStatus] = React.useState("");
    const [showMeals, setShowMeals] = React.useState(false);
    const [showPlans, setShowPlans] = React.useState(false);
+   const [friendCount, setFriendCount] = React.useState(0);
 
    async function unfollow() {
       const lastStatus = status;
@@ -41,6 +42,9 @@ function UserPage() {
          if (!result.ok) {
             throw new Error("operation canceled.");
          }
+
+         // Update status to empty string after successful unfollow
+         setStatus("");
       } catch (err) {
          setStatus(lastStatus);
          console.error(err);
@@ -97,15 +101,16 @@ function UserPage() {
          );
 
          if (!result.ok) {
+            const errorData = await result.json().catch(() => ({}));
             throw new Error(
-               "something went wrong, could not send friend request"
+               errorData.error || "something went wrong, could not send friend request"
             );
          }
 
          setStatus("pending");
       } catch (err) {
          setStatus(lastStatus);
-         console.error(err);
+         console.error("Error sending friend request:", err);
       } finally {
          setState("idle");
       }
@@ -139,7 +144,7 @@ function UserPage() {
             const { friend_meals, friend_plans, status } =
                json;
 
-            status && setStatus(status);
+            setStatus(status !== undefined && status !== null ? status : "");
             friend_meals && setMeals(friend_meals);
             friend_plans && setPlans(friend_plans);
 
@@ -151,6 +156,8 @@ function UserPage() {
       }
 
       getUser();
+      // Note: Friend count for other users is not available via API
+      // Setting to 0 for now - can be enhanced if API is updated
    }, [userId]);
 
    if (state === "error") {
@@ -200,16 +207,16 @@ function UserPage() {
                <div className={styles.numbers}>
                   <Card
                      header="friends"
-                     footer="2"
+                     footer={friendCount}
                   />
                   <Card
                      header="plans"
-                     footer="2"
+                     footer={plans.length || 0}
                      onClick={() => setShowPlans(true)}
                   />
                   <Card
                      header="meals"
-                     footer="2"
+                     footer={meals.length || 0}
                      onClick={() => setShowMeals(true)}
                   />
                </div>
@@ -227,17 +234,6 @@ function UserPage() {
                </button>
             </div>
          </div>
-
-         {plans.length > 0 && (
-            <div className={styles.plans}>
-               plans go here
-            </div>
-         )}
-         {meals.length > 0 && (
-            <div className={styles.meals}>
-               meals go here
-            </div>
-         )}
       </div>
    );
 }

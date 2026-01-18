@@ -34,7 +34,7 @@ function Meals({ allMeals, friend = false, backButton }) {
                      <button
                         className={styles.newMealButton}
                         onClick={() =>
-                           backButton((e) => !e)
+                           backButton(false)
                         }>
                         back
                      </button>
@@ -61,7 +61,7 @@ function Meals({ allMeals, friend = false, backButton }) {
                header=":o"
                footer="they don't have any meals yet">
                <button
-                  onClick={() => backButton((e) => !e)}>
+                  onClick={() => backButton(false)}>
                   go back
                </button>
             </PIP>

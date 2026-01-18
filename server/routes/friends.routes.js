@@ -16,8 +16,9 @@ const days = [
 // ============================================================================
 
 function normalizeUsers(U1, U2) {
-   const u1 = String(U1);
-   const u2 = String(U2);
+   // Ensure UUIDs are strings and normalize to lowercase for consistent comparison
+   const u1 = String(U1).toLowerCase().trim();
+   const u2 = String(U2).toLowerCase().trim();
    const userId = u1 < u2 ? u1 : u2;
    const friendId = u1 < u2 ? u2 : u1;
    return { userId, friendId };
@@ -101,8 +102,16 @@ router.get("/", authenticate, async (req, res, next) => {
 
 // ADD A FRIEND
 router.post("/", authenticate, async (req, res, next) => {
-   const userAId = req.user.userId;
+   const userAId = req.user?.userId;
    const userBId = req.body?.target_user_id;
+
+   // Validate userAId (authenticated user)
+   if (!userAId) {
+      console.error("POST /friend - userAId is missing from req.user:", req.user);
+      return res.status(401).json({
+         error: "Authentication failed - user ID not found",
+      });
+   }
 
    if (!userBId) {
       return res
@@ -117,11 +126,36 @@ router.post("/", authenticate, async (req, res, next) => {
       });
    }
 
-   // normalize requstId and friend_id
+   // normalize userId and friend_id (ensure UUIDs are valid strings)
+   if (typeof userAId !== 'string' || typeof userBId !== 'string') {
+      console.error("POST /friend - Invalid UUID types:", { userAId, userBId, userAType: typeof userAId, userBType: typeof userBId });
+      return res.status(400).json({
+         error: "Invalid user ID format",
+      });
+   }
+
    const { userId, friendId } = normalizeUsers(
       userAId,
       userBId
    );
+
+   // Validate normalized IDs
+   if (!userId || !friendId) {
+      console.error("POST /friend - Normalized IDs are invalid:", { userAId, userBId, userId, friendId });
+      return res.status(400).json({
+         error: "Invalid user ID format after normalization",
+      });
+   }
+
+   // Ensure requester_id is set correctly (should be userAId, not normalized)
+   const requesterId = String(userAId).trim();
+   
+   if (!requesterId) {
+      console.error("POST /friend - requesterId is empty after string conversion:", { userAId, userId, friendId });
+      return res.status(500).json({
+         error: "Internal server error - invalid requester ID",
+      });
+   }
 
    try {
       // Check if friendship already exists
@@ -154,7 +188,7 @@ router.post("/", authenticate, async (req, res, next) => {
                friend_id=$2
                RETURNING id
                `,
-               [userId, friendId, userAId]
+               [userId, friendId, requesterId]
             );
             const {
                rows: [{ id }],
@@ -165,13 +199,21 @@ router.post("/", authenticate, async (req, res, next) => {
                .json({ message: "request sent", id });
          }
       } else {
+         // Double-check that requesterId is not null/undefined before insert
+         if (!requesterId) {
+            console.error("POST /friend - requesterId is null/undefined before insert:", { userAId, userId, friendId, requesterId });
+            return res.status(500).json({
+               error: "Internal server error - requester ID is missing",
+            });
+         }
+
          const result = await pool.query(
             `
         INSERT INTO friendships (user_id, friend_id, requester_id) 
         VALUES ($1, $2, $3)
         RETURNING id
         `,
-            [userId, friendId, userAId]
+            [userId, friendId, requesterId]
          );
 
          const {
@@ -183,6 +225,13 @@ router.post("/", authenticate, async (req, res, next) => {
             .json({ message: "request sent", id });
       }
    } catch (err) {
+      console.error("Error in POST /friend route:", err);
+      // Log more details if it's a database constraint error
+      if (err.code === '23503') { // Foreign key violation
+         console.error("Foreign key constraint violation - user might not exist");
+      } else if (err.code === '23505') { // Unique violation
+         console.error("Unique constraint violation - friendship already exists");
+      }
       next(err);
    }
 });
@@ -238,6 +287,39 @@ router.delete("/", authenticate, async (req, res, next) => {
    }
 });
 
+// GET ALL PENDING REQUESTS (must be before /:userBId route)
+router.get(
+   "/pending",
+   authenticate,
+   async (req, res, next) => {
+      const userId = req.user.userId;
+      try {
+         const data = await pool.query(
+            `SELECT
+               f.requester_id,
+               u.name AS requester_name,
+               u.username AS requester_username 
+            FROM friendships f
+            JOIN users u ON u.id = f.requester_id
+            WHERE
+               (f.user_id = $1 OR f.friend_id = $1) AND
+               f.status = 'pending' AND
+               f.requester_id != $1
+            ORDER BY f.updated_at DESC`,
+            [userId]
+         );
+
+         if (data.rows.length === 0) {
+            return res.status(200).json({ data: [] });
+         }
+
+         return res.status(200).json({ data: data.rows });
+      } catch (err) {
+         next(err);
+      }
+   }
+);
+
 // GET A FRIEND
 router.get(
    "/:userBId",
@@ -245,6 +327,14 @@ router.get(
    async (req, res, next) => {
       const userAId = req.user.userId;
       const userBId = req.params.userBId;
+
+      // Validate UUID format (basic check - UUIDs are 36 characters with dashes)
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(userBId)) {
+         return res.status(400).json({
+            error: "Invalid user ID format",
+         });
+      }
 
       if (userAId === userBId) {
          return res.status(400).json({
@@ -300,7 +390,7 @@ router.get(
                name,
                username,
                id,
-               status: "rejected",
+               status: "",
             });
          }
 
@@ -467,39 +557,6 @@ router.get(
    }
 );
 
-// GET ALL PENDING REQUESETS
-router.get(
-   "/pending",
-   authenticate,
-   async (req, res, next) => {
-      const userId = req.user.userId;
-      try {
-         const data = await pool.query(
-            `SELECT
-               f.requester_id,
-               u.name AS requester_name,
-               u.username AS requester_username 
-            FROM friendships f
-            JOIN users u ON u.id = f.requester_id
-            WHERE
-               (f.user_id = $1 OR f.friend_id = $1) AND
-               f.status = 'pending' AND
-               f.requester_id != $1
-            ORDER BY f.updated_at DESC`,
-            [userId]
-         );
-
-         if (data.rows.length === 0) {
-            return res.status(200).json({ data: [] });
-         }
-
-         return res.status(200).json({ data: data.rows });
-      } catch (err) {
-         next(err);
-      }
-   }
-);
-
 // CANCEL PENDING REQUEST
 router.patch("/", authenticate, async (req, res, next) => {
    const userAId = req.user.userId;
@@ -591,7 +648,7 @@ router.patch(
             WHERE
                user_id = $2 AND
                friend_id = $3 AND
-               requester_id = $4 AND  // requester_id should be userBId (the person who sent the request)
+               requester_id = $4 AND
                status = 'pending'
             RETURNING id
             `,

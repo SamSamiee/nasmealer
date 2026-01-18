@@ -88,20 +88,24 @@ function Plans({ friend = false, allPlans, backButton }) {
 
    return (
       <div className={styles.container}>
-         <button
-            className={styles.backButton}
-            onClick={() => false}>
-            back
-         </button>
+         {friend && (
+            <button
+               className={styles.backButton}
+               onClick={() => backButton(false)}>
+               back
+            </button>
+         )}
          {data.length > 0 ? (
             <div>
-               <div className={styles.header}>
-                  <button
-                     className={styles.newPlanButton}
-                     onClick={() => navigate("/newplan")}>
-                     new plan
-                  </button>
-               </div>
+               {!friend && (
+                  <div className={styles.header}>
+                     <button
+                        className={styles.newPlanButton}
+                        onClick={() => navigate("/newplan")}>
+                        new plan
+                     </button>
+                  </div>
+               )}
                <div className={styles.plansList}>
                   {data.map(
                      ({
@@ -116,7 +120,7 @@ function Plans({ friend = false, allPlans, backButton }) {
                               planId={plan_id}
                               mainPlan={week_table}
                               edit={false}
-                              onDelete={!handleDeletePlan}
+                              onDelete={!friend ? handleDeletePlan : undefined}
                               friend={friend}
                            />
                         );
@@ -141,7 +145,7 @@ function Plans({ friend = false, allPlans, backButton }) {
                footer="no meals for them">
                <button
                   onClick={() => {
-                     backButton(() => false);
+                     backButton(false);
                   }}>
                   go back
                </button>
